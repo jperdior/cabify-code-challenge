@@ -2,7 +2,7 @@ package cars
 
 import (
 	"cabify-code-challenge/internal/carpool"
-	"cabify-code-challenge/internal/use_cases/putting_cars"
+	"cabify-code-challenge/internal/use_cases/cars"
 	"cabify-code-challenge/kit/command"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -21,12 +21,12 @@ func PutCarsHandler(commandBus command.Bus) gin.HandlerFunc {
 			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		var cars []putting_cars.CarDTO
+		var cars []cars.CarDTO
 		for _, car := range request {
-			newCar := putting_cars.NewCarDTO(car.ID, car.Seats)
+			newCar := cars.NewCarDTO(car.ID, car.Seats)
 			cars = append(cars, newCar)
 		}
-		err := commandBus.Dispatch(context, putting_cars.NewPutCarsCommand(cars))
+		err := commandBus.Dispatch(context, cars.NewPutCarsCommand(cars))
 		if err != nil {
 			switch {
 			case errors.Is(err, carpool.ErrInvalidCarID), errors.Is(err, carpool.ErrInvalidSeats):

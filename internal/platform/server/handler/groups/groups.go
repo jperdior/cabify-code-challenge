@@ -2,8 +2,8 @@ package groups
 
 import (
 	"cabify-code-challenge/internal/carpool"
-	"cabify-code-challenge/internal/use_cases/creating_journey"
 	"cabify-code-challenge/internal/use_cases/dropoff"
+	"cabify-code-challenge/internal/use_cases/journey"
 	"cabify-code-challenge/internal/use_cases/locate"
 	"cabify-code-challenge/kit/command"
 	"cabify-code-challenge/kit/query"
@@ -25,7 +25,7 @@ func PostJourneyHandler(commandBus command.Bus) gin.HandlerFunc {
 			return
 		}
 
-		err := commandBus.Dispatch(context, creating_journey.NewCreatingJourneyCommand(request.ID, request.People))
+		err := commandBus.Dispatch(context, journey.NewCreatingJourneyCommand(request.ID, request.People))
 		if err != nil {
 			switch {
 			case errors.Is(err, carpool.ErrInvalidGroupID), errors.Is(err, carpool.ErrInvalidPeople):

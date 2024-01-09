@@ -1,4 +1,4 @@
-package creating_journey
+package journey
 
 import (
 	"cabify-code-challenge/internal/carpool"

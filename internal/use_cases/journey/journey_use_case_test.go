@@ -1,4 +1,4 @@
-package creating_journey
+package journey
 
 import (
 	"cabify-code-challenge/internal/carpool"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func Test_CreatingJourneyUseCase(t *testing.T) {
+func Test_JourneyUseCase(t *testing.T) {
 
 	creatingJourneyUseCase := NewCreateJourneyUseCase()
 

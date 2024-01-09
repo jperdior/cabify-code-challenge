@@ -4,8 +4,8 @@ import (
 	"cabify-code-challenge/internal/carpool"
 	"cabify-code-challenge/internal/platform/bus/inmemory"
 	"cabify-code-challenge/internal/platform/server"
-	"cabify-code-challenge/internal/use_cases/creating_journey"
-	"cabify-code-challenge/internal/use_cases/putting_cars"
+	"cabify-code-challenge/internal/use_cases/cars"
+	"cabify-code-challenge/internal/use_cases/journey"
 )
 
 const (
@@ -20,12 +20,12 @@ func Run() error {
 		queryBus   = inmemory.NewQueryBus()
 	)
 
-	puttingCarsUseCase := putting_cars.NewPuttingCarsUseCase()
-	puttingCarsCommandHandler := putting_cars.NewPutCarsCommandHandler(puttingCarsUseCase)
-	commandBus.Register(putting_cars.PutCarsCommandType, puttingCarsCommandHandler)
-	createJourneyUseCase := creating_journey.NewCreateJourneyUseCase()
-	createJourneyCommandHandler := creating_journey.NewCreatingJourneyCommandHandler(createJourneyUseCase)
-	commandBus.Register(creating_journey.CreatingJourneyCommandType, createJourneyCommandHandler)
+	puttingCarsUseCase := cars.NewPuttingCarsUseCase()
+	puttingCarsCommandHandler := cars.NewPutCarsCommandHandler(puttingCarsUseCase)
+	commandBus.Register(cars.PutCarsCommandType, puttingCarsCommandHandler)
+	createJourneyUseCase := journey.NewCreateJourneyUseCase()
+	createJourneyCommandHandler := journey.NewCreatingJourneyCommandHandler(createJourneyUseCase)
+	commandBus.Register(journey.CreatingJourneyCommandType, createJourneyCommandHandler)
 
 	carPool := carpool.NewCarPool()
 

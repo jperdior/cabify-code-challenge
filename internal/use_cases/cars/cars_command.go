@@ -1,4 +1,4 @@
-package putting_cars
+package cars
 
 import (
 	"cabify-code-challenge/internal/carpool"
@@ -7,7 +7,7 @@ import (
 	"errors"
 )
 
-const PutCarsCommandType command.Type = "putting_cars"
+const PutCarsCommandType command.Type = "cars"
 
 type CarDTO struct {
 	id    int

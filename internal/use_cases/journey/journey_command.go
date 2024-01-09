@@ -1,4 +1,4 @@
-package creating_journey
+package journey
 
 import (
 	"cabify-code-challenge/internal/carpool"
@@ -7,7 +7,7 @@ import (
 	"errors"
 )
 
-const CreatingJourneyCommandType command.Type = "creating_journey"
+const CreatingJourneyCommandType command.Type = "journey"
 
 type CreatingJourneyCommand struct {
 	groupID int

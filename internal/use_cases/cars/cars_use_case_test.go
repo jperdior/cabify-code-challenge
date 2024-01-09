@@ -1,4 +1,4 @@
-package putting_cars
+package cars
 
 import (
 	"cabify-code-challenge/internal/carpool"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func Test_PuttingCarsUseCase_PutCars(t *testing.T) {
+func Test_CarsUseCase_PutCars(t *testing.T) {
 
 	puttingCarsService := NewPuttingCarsUseCase()
 	carPool := carpool.NewCarPool()

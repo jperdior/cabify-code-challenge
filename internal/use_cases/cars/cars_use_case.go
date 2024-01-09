@@ -1,4 +1,4 @@
-package putting_cars
+package cars
 
 import (
 	"cabify-code-challenge/internal/carpool"
