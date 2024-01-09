@@ -2,8 +2,9 @@ package cars
 
 import (
 	"bytes"
-	"cabify-code-challenge/internal/use_cases/putting_cars"
+	"cabify-code-challenge/kit/command/commandmocks"
 	"encoding/json"
+	"github.com/stretchr/testify/mock"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,12 +17,17 @@ import (
 
 func TestPutCarsHandler(t *testing.T) {
 
-	puttingCarsService := putting_cars.PuttingCarsUseCase{}
+	commandBus := new(commandmocks.Bus)
+	commandBus.On(
+		"Dispatch",
+		mock.Anything,
+		mock.Anything,
+	).Return(nil)
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.PUT("/cars", PutCarsHandler(
-		puttingCarsService,
+		commandBus,
 	))
 
 	t.Run("given an valid request it returns 200", func(t *testing.T) {

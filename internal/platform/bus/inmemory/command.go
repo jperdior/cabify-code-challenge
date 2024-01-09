@@ -3,6 +3,7 @@ package inmemory
 import (
 	"cabify-code-challenge/kit/command"
 	"context"
+	"fmt"
 	"log"
 )
 
@@ -24,8 +25,9 @@ func (b *CommandBus) Dispatch(ctx context.Context, cmd command.Command) error {
 	if !ok {
 		return nil
 	}
-
+	fmt.Print("about to dispatch command\n")
 	go func() {
+		fmt.Print("Dispatching command\n")
 		err := handler.Handle(ctx, cmd)
 		if err != nil {
 			log.Printf("Error while handling %s - %s\n", cmd.Type(), err)

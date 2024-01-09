@@ -48,6 +48,7 @@ func NewPutCarsCommandHandler(useCase PuttingCarsUseCase) PutCarsCommandHandler 
 	return PutCarsCommandHandler{useCase: useCase}
 }
 
+// Handle implements the command.Handler interface
 func (h PutCarsCommandHandler) Handle(context context.Context, command command.Command) error {
 	putCarsCommand, ok := command.(PutCarsCommand)
 	if !ok {

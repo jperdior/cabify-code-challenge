@@ -13,12 +13,14 @@ const (
 
 func Run() error {
 
-	puttingCarsUseCase := putting_cars.NewPuttingCarsUseCase()
-
 	var (
 		commandBus = inmemory.NewCommandBus()
 	)
 
-	srv := server.New(host, port, puttingCarsUseCase)
+	puttingCarsUseCase := putting_cars.NewPuttingCarsUseCase()
+	puttingCarsCommandHandler := putting_cars.NewPutCarsCommandHandler(puttingCarsUseCase)
+	commandBus.Register(putting_cars.PutCarsCommandType, puttingCarsCommandHandler)
+
+	srv := server.New(host, port, commandBus)
 	return srv.Run()
 }

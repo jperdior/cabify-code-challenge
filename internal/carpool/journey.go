@@ -1,23 +1,8 @@
 package carpool
 
 import (
-	"errors"
 	"fmt"
 )
-
-type GroupID struct {
-	value int
-}
-
-var ErrInvalidGroupID = errors.New("invalid group id")
-
-// NewGroupID creates a new group id
-func NewGroupID(value int) (GroupID, error) {
-	if value < 0 {
-		return GroupID{}, fmt.Errorf("%w: %d", ErrInvalidGroupID, value)
-	}
-	return GroupID{value: value}, nil
-}
 
 type Journey struct {
 	groupID GroupID

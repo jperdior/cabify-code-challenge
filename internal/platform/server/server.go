@@ -4,7 +4,7 @@ import (
 	"cabify-code-challenge/internal/platform/server/handler/cars"
 	"cabify-code-challenge/internal/platform/server/handler/groups"
 	"cabify-code-challenge/internal/platform/server/handler/status"
-	"cabify-code-challenge/internal/use_cases/putting_cars"
+	"cabify-code-challenge/kit/command"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -15,15 +15,16 @@ type Server struct {
 	engine   *gin.Engine
 
 	//deps
-	puttingCarsUseCase putting_cars.PuttingCarsUseCase
+	commandBus command.Bus
 }
 
-func New(host string, port uint, puttingCarsUseCase putting_cars.PuttingCarsUseCase) Server {
+func New(host string, port uint, commandBus command.Bus) Server {
 	srv := Server{
 		httpAddr: fmt.Sprintf("%s:%d", host, port),
 		engine:   gin.New(),
 
-		puttingCarsUseCase: puttingCarsUseCase,
+		//deps
+		commandBus: commandBus,
 	}
 
 	srv.registerRoutes()
@@ -37,7 +38,7 @@ func (s *Server) Run() error {
 
 func (s *Server) registerRoutes() {
 	s.engine.GET("/status", status.StatusHandler())
-	s.engine.PUT("/cars", cars.PutCarsHandler(s.puttingCarsUseCase))
+	s.engine.PUT("/cars", cars.PutCarsHandler(s.commandBus))
 	s.engine.POST("/journey", groups.PostJourneyHandler())
 	s.engine.POST("/dropoff", groups.PostDropOffHandler())
 	s.engine.POST("/locate", groups.PostLocateHandler())
