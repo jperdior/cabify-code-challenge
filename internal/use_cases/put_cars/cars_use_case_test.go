@@ -1,4 +1,4 @@
-package cars
+package put_cars
 
 import (
 	"cabify-code-challenge/internal/carpool"
@@ -12,7 +12,7 @@ func Test_CarsUseCase_PutCars(t *testing.T) {
 	puttingCarsService := NewPuttingCarsUseCase()
 	carPool := carpool.NewCarPool()
 
-	t.Run("given a set of cars, it should add them to the car pool", func(t *testing.T) {
+	t.Run("given a set of put_cars, it should add them to the car pool", func(t *testing.T) {
 
 		car1, _ := carpool.NewCar(1, 3)
 		car2, _ := carpool.NewCar(2, 3)
@@ -26,7 +26,7 @@ func Test_CarsUseCase_PutCars(t *testing.T) {
 		assert.Equal(t, 1, len(carPool.GetCarsBySeat()[5]))
 	})
 
-	t.Run("given a carpool with cars and journeys, it should overwrite the cars and remove the journeys", func(t *testing.T) {
+	t.Run("given a carpool with put_cars and journeys, it should overwrite the put_cars and remove the journeys", func(t *testing.T) {
 
 		car1, _ := carpool.NewCar(1, 3)
 		car2, _ := carpool.NewCar(2, 3)

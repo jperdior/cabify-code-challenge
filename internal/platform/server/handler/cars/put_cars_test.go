@@ -26,7 +26,7 @@ func TestPutCarsHandler(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.PUT("/cars", PutCarsHandler(
+	r.PUT("/put_cars", PutCarsHandler(
 		commandBus,
 	))
 

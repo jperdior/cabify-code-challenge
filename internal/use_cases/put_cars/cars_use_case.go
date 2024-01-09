@@ -1,4 +1,4 @@
-package cars
+package put_cars
 
 import (
 	"cabify-code-challenge/internal/carpool"
@@ -12,7 +12,7 @@ func NewPuttingCarsUseCase() PuttingCarsUseCase {
 	return PuttingCarsUseCase{}
 }
 
-// PutCars sets the cars in the carPool
+// PutCars sets the put_cars in the carPool
 func (s PuttingCarsUseCase) PutCars(carPool *carpool.CarPool, cars []carpool.Car) error {
 
 	carPool.SetCars(cars)

@@ -13,7 +13,7 @@ func Test_JourneyUseCase(t *testing.T) {
 
 	carPool := carpool.NewCarPool()
 
-	t.Run("given a carpool without cars available it should have a group waiting ", func(t *testing.T) {
+	t.Run("given a carpool without put_cars available it should have a group waiting ", func(t *testing.T) {
 
 		err := creatingJourneyUseCase.CreateJourney(carPool, 2, 3)
 
@@ -26,7 +26,7 @@ func Test_JourneyUseCase(t *testing.T) {
 
 	})
 
-	t.Run("given a carpool with cars available it should have a journey and in the only car with enough space", func(t *testing.T) {
+	t.Run("given a carpool with put_cars available it should have a journey and in the only car with enough space", func(t *testing.T) {
 
 		car1, err := carpool.NewCar(1, 3)
 		require.NoError(t, err)

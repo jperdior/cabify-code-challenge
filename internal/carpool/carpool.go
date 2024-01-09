@@ -54,7 +54,7 @@ func (carpool *CarPool) GetJourneys() map[GroupID]Journey {
 	return carpool.journeys
 }
 
-// GetCarsBySeat returns the cars
+// GetCarsBySeat returns the put_cars
 func (carpool *CarPool) GetCarsBySeat() map[int][]Car {
 	return carpool.carsBySeat
 }
