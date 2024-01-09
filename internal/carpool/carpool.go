@@ -5,24 +5,58 @@ import (
 	"sync"
 )
 
+const MaxSeats = 6
+
 type CarPool struct {
-	cars                   map[CarID]Car
-	carsBySeat             map[Seats][]Car
-	waitingGroups          []Group
+	//contains all the cars in the carpool
+	cars map[int]Car
+	//contains all the cars in the carpool grouped by number of seats
+	carsBySeat map[int][]Car
+	//queue of groups waiting for a car
+	waitingGroups []Group
+	//hash map to find the index of a group in the queue
 	waitingGroupsIndexHash map[GroupID]int
-	groups                 map[GroupID]Group
-	journeys               map[GroupID]Journey
-	mu                     sync.Mutex
+	//contains all the groups in the carpool
+	groups map[GroupID]Group
+	//contains all the journeys in the carpool indexed by group id
+	journeys map[GroupID]Journey
+	mu       sync.Mutex
 }
 
-// NewCarPoolingService creates a new carpool
-func NewCarPoolingService() *CarPool {
+// NewCarPool creates a new carpool
+func NewCarPool() *CarPool {
 	return &CarPool{
-		cars:       make(map[CarID]Car),
-		carsBySeat: make(map[Seats][]Car),
-		groups:     make(map[GroupID]Group),
-		journeys:   make(map[GroupID]Journey),
+		cars:                   make(map[int]Car),
+		carsBySeat:             make(map[int][]Car),
+		groups:                 make(map[GroupID]Group),
+		journeys:               make(map[GroupID]Journey),
+		waitingGroupsIndexHash: make(map[GroupID]int),
 	}
+}
+
+// GetGroups
+func (carpool *CarPool) GetGroups() map[GroupID]Group {
+	return carpool.groups
+}
+
+// GetWaitingGroups returns the waiting groups
+func (carpool *CarPool) GetWaitingGroups() []Group {
+	return carpool.waitingGroups
+}
+
+// GetWaitingGroupsIndexHash returns the waiting groups index hash
+func (carpool *CarPool) GetWaitingGroupsIndexHash() map[GroupID]int {
+	return carpool.waitingGroupsIndexHash
+}
+
+// GetJourneys returns the journeys
+func (carpool *CarPool) GetJourneys() map[GroupID]Journey {
+	return carpool.journeys
+}
+
+// GetCarsBySeat returns the cars
+func (carpool *CarPool) GetCarsBySeat() map[int][]Car {
+	return carpool.carsBySeat
 }
 
 // SetCars sets the carsBySeat and resets journeys
@@ -30,16 +64,17 @@ func (carpool *CarPool) SetCars(cars []Car) {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
 
-	carpool.carsBySeat = make(map[Seats][]Car)
+	carpool.carsBySeat = make(map[int][]Car)
 	carpool.journeys = make(map[GroupID]Journey)
 
 	for _, car := range cars {
-		carpool.carsBySeat[car.Seats()] = append(carpool.carsBySeat[car.Seats()], car)
+		carpool.carsBySeat[car.Seats().Value()] = append(carpool.carsBySeat[car.Seats().Value()], car)
+		carpool.cars[car.ID().Value()] = car
 	}
 }
 
 // GetCarBySeats returns a car with the given number of seats
-func (carpool *CarPool) GetCarBySeats(seats Seats) (Car, bool) {
+func (carpool *CarPool) GetCarBySeats(seats int) (Car, bool) {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
 
@@ -85,11 +120,11 @@ func (carpool *CarPool) AddWaitingGroup(group Group) {
 }
 
 // RegisterJourney adds a new journey
-func (carpool *CarPool) RegisterJourney(groupID GroupID, journey Journey) {
+func (carpool *CarPool) RegisterJourney(journey Journey) {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
 
-	carpool.journeys[groupID] = journey
+	carpool.journeys[journey.groupID] = journey
 }
 
 var ErrGroupNotFound = errors.New("group not found")
@@ -98,23 +133,24 @@ var ErrGroupNotFound = errors.New("group not found")
 func (carpool *CarPool) DropOff(groupID GroupID) error {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
+
 	_, exists := carpool.groups[groupID]
 	if !exists {
 		return ErrGroupNotFound
 	}
+
 	delete(carpool.groups, groupID)
 	_, exists = carpool.journeys[groupID]
-	if !exists {
-		return ErrGroupNotFound
+	if exists {
+		delete(carpool.journeys, groupID)
 	}
-	delete(carpool.journeys, groupID)
-	waitingGroupIndex, exists := carpool.waitingGroupsIndexHash[groupID]
-	if !exists {
-		return ErrGroupNotFound
-	}
-	carpool.waitingGroups = append(carpool.waitingGroups[:waitingGroupIndex], carpool.waitingGroups[waitingGroupIndex+1:]...)
-	delete(carpool.waitingGroupsIndexHash, groupID)
 
+	waitingGroupIndex, exists := carpool.waitingGroupsIndexHash[groupID]
+
+	if exists {
+		carpool.waitingGroups = append(carpool.waitingGroups[:waitingGroupIndex], carpool.waitingGroups[waitingGroupIndex+1:]...)
+		delete(carpool.waitingGroupsIndexHash, groupID)
+	}
 	return nil
 }
 
@@ -132,5 +168,5 @@ func (carpool *CarPool) Locate(groupID GroupID) (Car, error) {
 	if !exists {
 		return Car{}, nil
 	}
-	return carpool.cars[journey.Car()], nil
+	return carpool.cars[journey.CarID().Value()], nil
 }

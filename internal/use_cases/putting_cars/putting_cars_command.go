@@ -62,8 +62,12 @@ func (h PutCarsCommandHandler) Handle(context context.Context, command command.C
 		}
 		cars = append(cars, newCar)
 	}
+	carPool, ok := context.Value("carPool").(*carpool.CarPool)
+	if !ok {
+		return errors.New("carPool not found in context")
+	}
 	return h.useCase.PutCars(
-		context,
+		carPool,
 		cars,
 	)
 }

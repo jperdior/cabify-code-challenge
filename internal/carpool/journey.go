@@ -25,12 +25,12 @@ func NewJourney(groupID int, carID int) (Journey, error) {
 	}, nil
 }
 
-// Group returns the journey group id
-func (j Journey) Group() GroupID {
+// GroupID returns the journey group id
+func (j Journey) GroupID() GroupID {
 	return j.groupID
 }
 
-// Car returns the journey car id
-func (j Journey) Car() CarID {
+// CarID returns the journey car id
+func (j Journey) CarID() CarID {
 	return j.carID
 }

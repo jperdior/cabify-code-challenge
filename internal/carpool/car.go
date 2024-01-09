@@ -9,6 +9,10 @@ type CarID struct {
 	value int
 }
 
+func (c CarID) Value() int {
+	return c.value
+}
+
 var ErrInvalidCarID = errors.New("invalid car id")
 
 func NewCarID(value int) (CarID, error) {
@@ -22,10 +26,14 @@ type Seats struct {
 	value int
 }
 
+func (s Seats) Value() int {
+	return s.value
+}
+
 var ErrInvalidSeats = errors.New("invalid seats")
 
 func NewSeats(value int) (Seats, error) {
-	if value < 0 {
+	if value < 0 || value > MaxSeats {
 		return Seats{}, fmt.Errorf("%w: %d", ErrInvalidSeats, value)
 	}
 	return Seats{value: value}, nil

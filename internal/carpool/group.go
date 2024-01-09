@@ -9,6 +9,10 @@ type GroupID struct {
 	value int
 }
 
+func (g GroupID) Value() int {
+	return g.value
+}
+
 var ErrInvalidGroupID = errors.New("invalid group id")
 
 // NewGroupID creates a new group id
@@ -21,6 +25,10 @@ func NewGroupID(value int) (GroupID, error) {
 
 type People struct {
 	value int
+}
+
+func (p People) Value() int {
+	return p.value
 }
 
 var ErrInvalidPeople = errors.New("invalid people")
