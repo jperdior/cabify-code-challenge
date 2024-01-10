@@ -1,6 +1,7 @@
 package carpool
 
 import (
+	"cabify-code-challenge/kit/event"
 	"errors"
 	"sync"
 )
@@ -18,7 +19,9 @@ type CarPool struct {
 	groups map[GroupID]Group
 	//contains all the journeys in the carpool indexed by group id
 	journeys map[GroupID]Journey
-	mu       sync.Mutex
+
+	mu     sync.Mutex
+	events []event.Event
 }
 
 // NewCarPool creates a new carpool
@@ -216,4 +219,17 @@ func (carpool *CarPool) Locate(groupID GroupID) (Car, error) {
 		return Car{}, nil
 	}
 	return journey.Car(), nil
+}
+
+// Record records a new domain event.
+func (carpool *CarPool) Record(evt event.Event) {
+	carpool.events = append(carpool.events, evt)
+}
+
+// PullEvents returns all the recorded domain events.
+func (carpool *CarPool) PullEvents() []event.Event {
+	evt := carpool.events
+	carpool.events = []event.Event{}
+
+	return evt
 }
