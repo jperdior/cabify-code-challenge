@@ -19,8 +19,13 @@ type postJourneyRequest struct {
 
 func PostJourneyHandler(commandBus command.Bus) gin.HandlerFunc {
 	return func(context *gin.Context) {
+		contentType := context.Request.Header.Get("Content-Type")
+		if contentType != "application/json" {
+			context.JSON(http.StatusBadRequest, gin.H{"error": "invalid content type"})
+			return
+		}
 		var request postJourneyRequest
-		if err := context.BindJSON(&request); err != nil {
+		if err := context.ShouldBindJSON(&request); err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -47,6 +52,11 @@ type postDropOffRequest struct {
 
 func PostDropOffHandler(commandBus command.Bus) gin.HandlerFunc {
 	return func(context *gin.Context) {
+		contentType := context.Request.Header.Get("Content-Type")
+		if contentType != "application/x-www-form-urlencoded" {
+			context.JSON(http.StatusBadRequest, gin.H{"error": "invalid content type"})
+			return
+		}
 		var request postDropOffRequest
 		if err := context.ShouldBind(&request); err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -89,14 +99,14 @@ func PostLocateHandler(queryBus query.Bus) gin.HandlerFunc {
 				context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			case errors.Is(err, carpool.ErrGroupNotFound):
-				context.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+				context.String(http.StatusNotFound, "")
 				return
 			default:
 				context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
 		}
-		if car == (locate.LocationResponse{}) {
+		if locResponse, ok := car.(locate.LocationResponse); ok && locResponse.Id == 0 && locResponse.Seats == 0 {
 			context.Status(http.StatusNoContent)
 			return
 		}

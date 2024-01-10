@@ -41,6 +41,7 @@ func New(host string, port uint, commandBus command.Bus, queryBus query.Bus, car
 	}
 
 	srv.registerRoutes()
+	srv.engine.HandleMethodNotAllowed = true
 	return srv
 }
 

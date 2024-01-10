@@ -24,8 +24,8 @@ func (c LocateQuery) Type() query.Type {
 }
 
 type LocationResponse struct {
-	id    int
-	seats int
+	Id    int
+	Seats int
 }
 
 func NewLocationResponse(params ...interface{}) interface{} {
@@ -34,8 +34,8 @@ func NewLocationResponse(params ...interface{}) interface{} {
 		return errors.New("unexpected response")
 	}
 	return LocationResponse{
-		id:    car.ID().Value(),
-		seats: car.Seats().Value(),
+		Id:    car.ID().Value(),
+		Seats: car.Seats().Value(),
 	}
 }
 

@@ -1,0 +1,18 @@
+version: "3.6"
+
+services:
+    #pooling:
+    #    build: .
+    #    ports:
+    #    - "8080:8080"
+    #    volumes:
+    #    - .:/code
+        #healthcheck:
+        #    test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+
+    acceptance:
+      image: cabify/challenge:latest
+      #command: ["tail", "-f", "/dev/null"]
+      command: /harness --address http://host.docker.internal:8080 acceptance
+      #depends_on:
+      #  - pooling

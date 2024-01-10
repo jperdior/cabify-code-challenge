@@ -28,11 +28,11 @@ func Test_JourneyUseCase(t *testing.T) {
 
 	t.Run("given a carpool with put_cars available it should have a journey and in the only car with enough space", func(t *testing.T) {
 
-		car1, err := carpool.NewCar(1, 3)
+		car1, err := carpool.NewCar(1, 4)
 		require.NoError(t, err)
-		car2, err := carpool.NewCar(2, 3)
+		car2, err := carpool.NewCar(2, 4)
 		require.NoError(t, err)
-		car3, err := carpool.NewCar(3, 6)
+		car3, err := carpool.NewCar(3, 5)
 		require.NoError(t, err)
 		var cars []carpool.Car
 
@@ -42,7 +42,7 @@ func Test_JourneyUseCase(t *testing.T) {
 
 		carPool.SetCars(cars)
 
-		err = creatingJourneyUseCase.CreateJourney(carPool, 2, 4)
+		err = creatingJourneyUseCase.CreateJourney(carPool, 2, 5)
 		if err != nil {
 			return
 		}
@@ -52,7 +52,7 @@ func Test_JourneyUseCase(t *testing.T) {
 		assert.Equal(t, 1, len(carPool.GetGroups()))
 		assert.Equal(t, 1, len(carPool.GetJourneys()))
 		groupId, _ := carpool.NewGroupID(2)
-		var carId = carPool.GetJourneys()[groupId].CarID()
-		assert.Equal(t, 3, carId.Value())
+		var car = carPool.GetJourneys()[groupId].Car()
+		assert.Equal(t, 3, car.ID().Value())
 	})
 }

@@ -17,7 +17,12 @@ type putCarsRequest struct {
 func PutCarsHandler(commandBus command.Bus) gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var request []putCarsRequest
-		if err := context.BindJSON(&request); err != nil {
+		contentType := context.Request.Header.Get("Content-Type")
+		if contentType != "application/json" {
+			context.JSON(http.StatusBadRequest, gin.H{"error": "invalid content type"})
+			return
+		}
+		if err := context.ShouldBindJSON(&request); err != nil {
 			context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -25,6 +30,10 @@ func PutCarsHandler(commandBus command.Bus) gin.HandlerFunc {
 		for _, car := range request {
 			newCar := put_cars.NewCarDTO(car.ID, car.Seats)
 			cars = append(cars, newCar)
+		}
+		if len(cars) == 0 {
+			context.JSON(http.StatusBadRequest, gin.H{"error": "no cars provided"})
+			return
 		}
 		err := commandBus.Dispatch(context, put_cars.NewPutCarsCommand(cars))
 		if err != nil {
