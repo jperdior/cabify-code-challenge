@@ -22,6 +22,9 @@ func NewCarID(value int) (CarID, error) {
 	return CarID{value: value}, nil
 }
 
+const MinSeats = 4
+const MaxSeats = 6
+
 type Seats struct {
 	value int
 }
@@ -33,15 +36,33 @@ func (s Seats) Value() int {
 var ErrInvalidSeats = errors.New("invalid seats")
 
 func NewSeats(value int) (Seats, error) {
-	if value < 0 || value > MaxSeats {
+	if value < MinSeats || value > MaxSeats {
 		return Seats{}, fmt.Errorf("%w: %d", ErrInvalidSeats, value)
 	}
 	return Seats{value: value}, nil
 }
 
+type AvailableSeats struct {
+	value int
+}
+
+func (s AvailableSeats) Value() int {
+	return s.value
+}
+
+var ErrInvalidAvailableSeats = errors.New("invalid available seats")
+
+func NewAvailableSeats(value int) (AvailableSeats, error) {
+	if value < 0 {
+		return AvailableSeats{}, fmt.Errorf("%w: %d", ErrInvalidAvailableSeats, value)
+	}
+	return AvailableSeats{value: value}, nil
+}
+
 type Car struct {
-	id    CarID
-	seats Seats
+	id             CarID
+	seats          Seats
+	availableSeats AvailableSeats
 }
 
 // NewCar creates a new car
@@ -55,19 +76,46 @@ func NewCar(id int, seats int) (Car, error) {
 	if err != nil {
 		return Car{}, err
 	}
+	availableSeatsValueObject, err := NewAvailableSeats(seats)
 
 	return Car{
-		id:    idValueObject,
-		seats: seatsValueObject,
+		id:             idValueObject,
+		seats:          seatsValueObject,
+		availableSeats: availableSeatsValueObject,
 	}, nil
 }
 
 // ID returns the car id
-func (c Car) ID() CarID {
+func (c *Car) ID() CarID {
 	return c.id
 }
 
 // Seats returns the car seats
-func (c Car) Seats() Seats {
+func (c *Car) Seats() Seats {
 	return c.seats
+}
+
+func (c *Car) AvailableSeats() AvailableSeats {
+	return c.availableSeats
+}
+
+var ErrNotEnoughAvailableSeats = errors.New("not enough available seats")
+
+func (c *Car) SitPeople(people int) error {
+	if people > c.availableSeats.value {
+		return ErrNotEnoughAvailableSeats
+	}
+	c.availableSeats.value -= people
+	return nil
+}
+
+var ErrInvalidDropPeople = errors.New("invalid drop people")
+
+func (c *Car) DropPeople(people int) error {
+	usedSeats := c.seats.value - c.availableSeats.value
+	if people < 0 || people > usedSeats {
+		return ErrInvalidDropPeople
+	}
+	c.availableSeats.value += people
+	return nil
 }

@@ -11,7 +11,7 @@ import (
 
 type putCarsRequest struct {
 	ID    int `json:"id" binding:"required"`
-	Seats int `json:"seats" binding:"required"`
+	Seats int `json:"seats" binding:"required,min=4,max=6"`
 }
 
 func PutCarsHandler(commandBus command.Bus) gin.HandlerFunc {

@@ -17,18 +17,13 @@ func (s CreateJourneyUseCase) CreateJourney(carPool *carpool.CarPool, groupID in
 		return err
 	}
 	//register the group in the carpool
-	carPool.AddGroup(group)
-	//look for a car available for the group
-	for seats := group.People().Value(); seats <= carpool.MaxSeats; seats++ {
-		car, exists := carPool.GetCarBySeats(seats)
-		if exists {
-			journey, _ := carpool.NewJourney(group.ID().Value(), car.ID().Value())
-			carPool.RegisterJourney(journey)
-			return nil
-		}
+	err = carPool.AddGroup(group)
+	if err != nil {
+		return err
 	}
-	//keep the group in queue
-	carPool.AddWaitingGroup(group)
-
+	err = carPool.Journey(group)
+	if err != nil {
+		return err
+	}
 	return nil
 }

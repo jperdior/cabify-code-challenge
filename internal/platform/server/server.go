@@ -54,7 +54,7 @@ func (s *Server) registerRoutes() {
 	s.engine.Use(CarPoolMiddleware(s.carPool))
 
 	s.engine.GET("/status", status.StatusHandler())
-	s.engine.PUT("/put_cars", cars.PutCarsHandler(s.commandBus))
+	s.engine.PUT("/cars", cars.PutCarsHandler(s.commandBus))
 	s.engine.POST("/journey", groups.PostJourneyHandler(s.commandBus))
 	s.engine.POST("/dropoff", groups.PostDropOffHandler(s.commandBus))
 	s.engine.POST("/locate", groups.PostLocateHandler(s.queryBus))

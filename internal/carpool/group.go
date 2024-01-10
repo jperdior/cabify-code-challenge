@@ -23,6 +23,9 @@ func NewGroupID(value int) (GroupID, error) {
 	return GroupID{value: value}, nil
 }
 
+const MaxPeople = 6
+const MinPeople = 1
+
 type People struct {
 	value int
 }
@@ -35,7 +38,7 @@ var ErrInvalidPeople = errors.New("invalid people")
 
 // NewPeople creates a new people
 func NewPeople(value int) (People, error) {
-	if value < 1 || value > 6 {
+	if value < MinPeople || value > MaxPeople {
 		return People{}, fmt.Errorf("%w: %d", ErrInvalidPeople, value)
 	}
 	return People{value: value}, nil

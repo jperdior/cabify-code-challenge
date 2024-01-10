@@ -1,36 +1,24 @@
 package carpool
 
-import (
-	"fmt"
-)
-
 type Journey struct {
-	groupID GroupID
-	carID   CarID
+	group Group
+	car   Car
 }
 
 // NewJourney creates a new journey
-func NewJourney(groupID int, carID int) (Journey, error) {
-	groupIDValueObject, err := NewGroupID(groupID)
-	if err != nil {
-		return Journey{}, fmt.Errorf("%w: %d", ErrInvalidGroupID, groupID)
-	}
-	carIDValueObject, err := NewCarID(carID)
-	if err != nil {
-		return Journey{}, fmt.Errorf("%w: %d", ErrInvalidCarID, carID)
-	}
+func NewJourney(group Group, car Car) (Journey, error) {
 	return Journey{
-		groupID: groupIDValueObject,
-		carID:   carIDValueObject,
+		group: group,
+		car:   car,
 	}, nil
 }
 
-// GroupID returns the journey group id
-func (j Journey) GroupID() GroupID {
-	return j.groupID
+// Group returns the journey group
+func (j Journey) Group() Group {
+	return j.group
 }
 
-// CarID returns the journey car id
-func (j Journey) CarID() CarID {
-	return j.carID
+// Car returns the journey car
+func (j Journey) Car() Car {
+	return j.car
 }

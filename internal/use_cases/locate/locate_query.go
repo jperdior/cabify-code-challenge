@@ -23,6 +23,22 @@ func (c LocateQuery) Type() query.Type {
 	return LocateQueryType
 }
 
+type LocationResponse struct {
+	id    int
+	seats int
+}
+
+func NewLocationResponse(params ...interface{}) interface{} {
+	car, ok := params[0].(carpool.Car)
+	if !ok {
+		return errors.New("unexpected response")
+	}
+	return LocationResponse{
+		id:    car.ID().Value(),
+		seats: car.Seats().Value(),
+	}
+}
+
 type LocateQueryHandler struct {
 	useCase LocateUseCase
 }
@@ -35,12 +51,12 @@ func NewLocateQueryHandler(useCase LocateUseCase) LocateQueryHandler {
 func (h LocateQueryHandler) Handle(context context.Context, query query.Query) (interface{}, error) {
 	locateQuery, ok := query.(LocateQuery)
 	if !ok {
-		return carpool.Car{}, errors.New("unexpected query")
+		return LocationResponse{}, errors.New("unexpected query")
 	}
 	carPool := context.Value("carPool").(*carpool.CarPool)
 	car, err := h.useCase.Locate(carPool, locateQuery.GroupID)
 	if err != nil {
-		return carpool.Car{}, err
+		return LocationResponse{}, err
 	}
-	return car, nil
+	return NewLocationResponse(car), nil
 }

@@ -96,9 +96,11 @@ func PostLocateHandler(queryBus query.Bus) gin.HandlerFunc {
 				return
 			}
 		}
-		if car == (carpool.Car{}) {
+		if car == (locate.LocationResponse{}) {
 			context.Status(http.StatusNoContent)
 			return
 		}
+		context.JSON(http.StatusOK, car)
+		return
 	}
 }
