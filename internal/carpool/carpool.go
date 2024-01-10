@@ -52,8 +52,8 @@ func (carpool *CarPool) GetJourneys() map[GroupID]Journey {
 	return carpool.journeys
 }
 
-// GetCarsBySeat returns the put_cars
-func (carpool *CarPool) GetCarsBySeat() map[AvailableSeats]map[CarID]Car {
+// GetCarsByAvailableSeats returns the put_cars
+func (carpool *CarPool) GetCarsByAvailableSeats() map[AvailableSeats]map[CarID]Car {
 	return carpool.carsByAvailableSeats
 }
 

@@ -11,7 +11,7 @@ func StatusHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		carPool := context.MustGet("carPool").(*carpool.CarPool)
 		// marshall the carPool to json
-		carsBySeats := carPool.GetCarsBySeat()
+		carsBySeats := carPool.GetCarsByAvailableSeats()
 		for seats, cars := range carsBySeats {
 			fmt.Printf("Cars with %d seats:\n", seats)
 			for _, car := range cars {
