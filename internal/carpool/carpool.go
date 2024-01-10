@@ -156,8 +156,6 @@ func (carpool *CarPool) DropOff(groupID GroupID) error {
 
 // Locate returns the car where a group is located
 func (carpool *CarPool) Locate(groupID GroupID) (Car, error) {
-	carpool.mu.Lock()
-	defer carpool.mu.Unlock()
 
 	_, exists := carpool.groups[groupID]
 	if !exists {

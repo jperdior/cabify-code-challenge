@@ -30,7 +30,7 @@ func (b *QueryBus) Ask(ctx context.Context, query query.Query) (interface{}, err
 	if err != nil {
 		log.Printf("Error while handling %s - %s\n", query.Type(), err)
 	}
-	return answer, nil
+	return answer, err
 }
 
 // Register implements the query.Bus interface.

@@ -32,11 +32,15 @@ func NewLocateQueryHandler(useCase LocateUseCase) LocateQueryHandler {
 }
 
 // Handle implements the query.Handler interface
-func (h LocateQueryHandler) Handle(context context.Context, query query.Query) (carpool.Car, error) {
+func (h LocateQueryHandler) Handle(context context.Context, query query.Query) (interface{}, error) {
 	locateQuery, ok := query.(LocateQuery)
 	if !ok {
 		return carpool.Car{}, errors.New("unexpected query")
 	}
 	carPool := context.Value("carPool").(*carpool.CarPool)
-	return h.useCase.Locate(carPool, locateQuery.GroupID)
+	car, err := h.useCase.Locate(carPool, locateQuery.GroupID)
+	if err != nil {
+		return carpool.Car{}, err
+	}
+	return car, nil
 }
