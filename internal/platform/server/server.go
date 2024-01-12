@@ -5,7 +5,9 @@ import (
 	"cabify-code-challenge/internal/platform/server/handler/cars"
 	"cabify-code-challenge/internal/platform/server/handler/groups"
 	"cabify-code-challenge/internal/platform/server/handler/status"
+	"cabify-code-challenge/internal/platform/server/middleware/logging"
 	"cabify-code-challenge/kit/command"
+	"cabify-code-challenge/kit/event"
 	"cabify-code-challenge/kit/query"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -19,6 +21,7 @@ type Server struct {
 	//deps
 	commandBus command.Bus
 	queryBus   query.Bus
+	eventBus   event.Bus
 	carPool    *carpool.CarPool
 }
 
@@ -29,7 +32,7 @@ func CarPoolMiddleware(carPool *carpool.CarPool) gin.HandlerFunc {
 	}
 }
 
-func New(host string, port uint, commandBus command.Bus, queryBus query.Bus, carPool *carpool.CarPool) Server {
+func New(host string, port uint, commandBus command.Bus, queryBus query.Bus, eventBus event.Bus, carPool *carpool.CarPool) Server {
 	srv := Server{
 		httpAddr: fmt.Sprintf("%s:%d", host, port),
 		engine:   gin.Default(),
@@ -37,6 +40,7 @@ func New(host string, port uint, commandBus command.Bus, queryBus query.Bus, car
 		//deps
 		commandBus: commandBus,
 		queryBus:   queryBus,
+		eventBus:   eventBus,
 		carPool:    carPool,
 	}
 
@@ -52,7 +56,7 @@ func (s *Server) Run() error {
 
 func (s *Server) registerRoutes() {
 
-	s.engine.Use(CarPoolMiddleware(s.carPool))
+	s.engine.Use(CarPoolMiddleware(s.carPool), logging.Middleware())
 
 	s.engine.GET("/status", status.StatusHandler())
 	s.engine.PUT("/cars", cars.PutCarsHandler(s.commandBus))

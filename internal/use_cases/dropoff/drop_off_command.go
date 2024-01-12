@@ -1,7 +1,6 @@
 package dropoff
 
 import (
-	"cabify-code-challenge/internal/carpool"
 	"cabify-code-challenge/kit/command"
 	"context"
 	"errors"
@@ -37,7 +36,6 @@ func (h DropOffCommandHandler) Handle(context context.Context, command command.C
 	if !ok {
 		return errors.New("unexpected command")
 	}
-	carPool := context.Value("carPool").(*carpool.CarPool)
 
-	return h.useCase.DropOff(carPool, dropOffCommand.groupID)
+	return h.useCase.DropOff(context, dropOffCommand.groupID)
 }

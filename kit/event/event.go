@@ -14,6 +14,11 @@ type Bus interface {
 
 //go:generate mockery --case=snake --outpkg=eventmocks --output=eventmocks --name=Bus
 
+// Handler defines the expected behaviour from an event handler.
+type Handler interface {
+	Handle(context.Context, Event) error
+}
+
 // Type represents a domain event type.
 type Type string
 

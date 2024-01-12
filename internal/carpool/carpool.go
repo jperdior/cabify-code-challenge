@@ -8,7 +8,7 @@ import (
 
 type CarPool struct {
 	//contains all the cars in the carpool
-	cars map[int]Car
+	cars map[CarID]Car
 	//contains all the cars in the carpool grouped by number of seats
 	carsByAvailableSeats map[AvailableSeats]map[CarID]Car
 	//queue of groups waiting for a car
@@ -27,7 +27,7 @@ type CarPool struct {
 // NewCarPool creates a new carpool
 func NewCarPool() *CarPool {
 	return &CarPool{
-		cars:                   make(map[int]Car),
+		//cars:                   make(map[CarID]Car),
 		carsByAvailableSeats:   make(map[AvailableSeats]map[CarID]Car),
 		groups:                 make(map[GroupID]Group),
 		journeys:               make(map[GroupID]Journey),
@@ -60,16 +60,25 @@ func (carpool *CarPool) GetCarsByAvailableSeats() map[AvailableSeats]map[CarID]C
 	return carpool.carsByAvailableSeats
 }
 
+// GetCars returns the cars
+func (carpool *CarPool) GetCars() map[CarID]Car {
+	return carpool.cars
+}
+
 // SetCars sets the carsByAvailableSeats and resets journeys
 func (carpool *CarPool) SetCars(cars []Car) {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
+	//reset cars and journeys
+	carpool.cars = make(map[CarID]Car)
 	carpool.carsByAvailableSeats = make(map[AvailableSeats]map[CarID]Car)
 	carpool.journeys = make(map[GroupID]Journey)
 
 	for _, car := range cars {
 		carpool.relocateCarInCarsByAvailableSeatsMap(car)
-		carpool.cars[car.ID().Value()] = car
+		carpool.cars[car.ID()] = car
+		//record the event
+		carpool.Record(NewCarPutEvent(car.ID().Value(), car.Seats().Value(), car.AvailableSeats().Value()))
 	}
 }
 
@@ -112,7 +121,7 @@ func (carpool *CarPool) Journey(group Group) error {
 			return nil
 		}
 	}
-	carpool.addWaitingGroup(group)
+	carpool.AddWaitingGroup(group)
 	return nil
 }
 
@@ -130,7 +139,7 @@ func (carpool *CarPool) getFirstCarByAvailableSeats(availableSeats AvailableSeat
 }
 
 // AddWaitingGroup adds a new group to the queue of waiting groups
-func (carpool *CarPool) addWaitingGroup(group Group) {
+func (carpool *CarPool) AddWaitingGroup(group Group) {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
 
@@ -177,6 +186,13 @@ func (carpool *CarPool) DropOff(groupID GroupID) error {
 			return err
 		}
 		delete(carpool.journeys, groupID)
+		car := carpool.cars[journey.Car().ID()]
+
+		//record the event
+		carpool.Record(NewJourneyDroppedEvent(
+			car.ID().Value(),
+			car.Seats().Value(),
+			car.AvailableSeats().Value()))
 	}
 
 	waitingGroupIndex, exists := carpool.waitingGroupsIndexHash[groupID]
@@ -197,13 +213,8 @@ func (carpool *CarPool) deregisterJourney(journey Journey) error {
 		return err
 	}
 	carpool.relocateCarInCarsByAvailableSeatsMap(car)
+	carpool.cars[car.ID()] = car
 	return nil
-}
-
-func (carpool *CarPool) recalculateCarBySeat(carID CarID, seats int) {
-	carpool.mu.Lock()
-	defer carpool.mu.Unlock()
-
 }
 
 // Locate returns the car where a group is located
@@ -226,7 +237,7 @@ func (carpool *CarPool) Record(evt event.Event) {
 	carpool.events = append(carpool.events, evt)
 }
 
-// PullEvents returns all the recorded domain events.
+// PullEvents pulls all the recorded domain events.
 func (carpool *CarPool) PullEvents() []event.Event {
 	evt := carpool.events
 	carpool.events = []event.Event{}

@@ -86,16 +86,16 @@ func NewCar(id int, seats int) (Car, error) {
 }
 
 // ID returns the car id
-func (c *Car) ID() CarID {
+func (c Car) ID() CarID {
 	return c.id
 }
 
 // Seats returns the car seats
-func (c *Car) Seats() Seats {
+func (c Car) Seats() Seats {
 	return c.seats
 }
 
-func (c *Car) AvailableSeats() AvailableSeats {
+func (c Car) AvailableSeats() AvailableSeats {
 	return c.availableSeats
 }
 
