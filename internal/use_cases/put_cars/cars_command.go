@@ -56,7 +56,7 @@ func (h PutCarsCommandHandler) Handle(context context.Context, command command.C
 	}
 	var cars []carpool.Car
 	for _, car := range putCarsCommand.cars {
-		newCar, err := carpool.NewCar(getID(car), getSeats(car))
+		newCar, err := carpool.NewCar(getID(car), getSeats(car), 0)
 		if err != nil {
 			return err
 		}

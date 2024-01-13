@@ -66,7 +66,7 @@ type Car struct {
 }
 
 // NewCar creates a new car
-func NewCar(id int, seats int) (Car, error) {
+func NewCar(id int, seats int, availableSeats int) (Car, error) {
 
 	idValueObject, err := NewCarID(id)
 	if err != nil {
@@ -76,7 +76,13 @@ func NewCar(id int, seats int) (Car, error) {
 	if err != nil {
 		return Car{}, err
 	}
-	availableSeatsValueObject, err := NewAvailableSeats(seats)
+	if availableSeats < 0 {
+		availableSeats = seats
+	}
+	availableSeatsValueObject, err := NewAvailableSeats(availableSeats)
+	if err != nil {
+		return Car{}, err
+	}
 
 	return Car{
 		id:             idValueObject,
