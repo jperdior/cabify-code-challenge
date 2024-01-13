@@ -2,6 +2,7 @@ package journey
 
 import (
 	"cabify-code-challenge/internal/carpool"
+	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -11,11 +12,10 @@ func Test_JourneyUseCase(t *testing.T) {
 
 	creatingJourneyUseCase := NewCreateJourneyUseCase()
 
-	carPool := carpool.NewCarPool()
-
 	t.Run("given a carpool without cars available it should have a group waiting ", func(t *testing.T) {
-
-		err := creatingJourneyUseCase.CreateJourney(carPool, 2, 3)
+		carPool := carpool.NewTestCarPoolWithoutCars()
+		ctx := context.WithValue(context.Background(), "carPool", carPool)
+		err := creatingJourneyUseCase.CreateJourney(ctx, 2, 3)
 
 		require.NoError(t, err)
 
@@ -30,19 +30,30 @@ func Test_JourneyUseCase(t *testing.T) {
 	})
 
 	t.Run("given a carpool with cars available it should have a journey and in the only car with enough space", func(t *testing.T) {
-
 		car1, err := carpool.NewCar(1, 4, 0)
 		require.NoError(t, err)
 		car2, err := carpool.NewCar(2, 4, 0)
 		require.NoError(t, err)
 		car3, err := carpool.NewCar(3, 5, 0)
 		require.NoError(t, err)
-		carPool.SetCars([]carpool.Car{car1, car2, car3})
+
+		cars := map[carpool.CarID]carpool.Car{
+			car1.ID(): car1,
+			car2.ID(): car2,
+			car3.ID(): car3,
+		}
+		carsByAvailableSeats := map[carpool.AvailableSeats]map[carpool.CarID]carpool.Car{
+			car1.AvailableSeats(): {car1.ID(): car1, car2.ID(): car2},
+			car3.AvailableSeats(): {car3.ID(): car3},
+		}
+
+		carPool := carpool.NewTestCarPoolWithCars(cars, carsByAvailableSeats)
+		ctx := context.WithValue(context.Background(), "carPool", carPool)
 
 		group, err := carpool.NewGroup(2, 5)
 		require.NoError(t, err)
 
-		err = creatingJourneyUseCase.CreateJourney(carPool, group.ID().Value(), group.People().Value())
+		err = creatingJourneyUseCase.CreateJourney(ctx, group.ID().Value(), group.People().Value())
 		require.NoError(t, err)
 
 		require.NoError(t, err)
@@ -60,17 +71,32 @@ func Test_JourneyUseCase(t *testing.T) {
 
 	t.Run("given a carpool with a car journeying but with enough space, there should be 2 journeys in the same car", func(t *testing.T) {
 
-		car1, err := carpool.NewCar(1, 4, 0)
+		car, err := carpool.NewCar(1, 4, 0)
 		require.NoError(t, err)
-		carPool.SetCars([]carpool.Car{car1})
 		group1, err := carpool.NewGroup(1, 2)
 		require.NoError(t, err)
 		group2, err := carpool.NewGroup(2, 2)
 		require.NoError(t, err)
-
-		err = creatingJourneyUseCase.CreateJourney(carPool, group1.ID().Value(), group1.People().Value())
+		journey, err := carpool.NewJourney(group1, car)
 		require.NoError(t, err)
-		err = creatingJourneyUseCase.CreateJourney(carPool, group2.ID().Value(), group2.People().Value())
+
+		cars := map[carpool.CarID]carpool.Car{
+			car.ID(): car,
+		}
+		carsByAvailableSeats := map[carpool.AvailableSeats]map[carpool.CarID]carpool.Car{
+			car.AvailableSeats(): {car.ID(): car},
+		}
+		groups := map[carpool.GroupID]carpool.Group{
+			group1.ID(): group1,
+		}
+		journeys := map[carpool.GroupID]carpool.Journey{
+			group1.ID(): journey,
+		}
+
+		carPool := carpool.NewTestCarPoolWithCarsAndJourneys(cars, carsByAvailableSeats, groups, journeys)
+		ctx := context.WithValue(context.Background(), "carPool", carPool)
+
+		err = creatingJourneyUseCase.CreateJourney(ctx, group2.ID().Value(), group2.People().Value())
 		require.NoError(t, err)
 
 		// There should be 2 groups
@@ -81,9 +107,9 @@ func Test_JourneyUseCase(t *testing.T) {
 		assert.Equal(t, 2, len(carPool.GetJourneys()))
 		// The 2 groups should be in the same car
 		var group1Car = carPool.GetJourneys()[group1.ID()].Car()
-		assert.Equal(t, car1.ID(), group1Car.ID())
+		assert.Equal(t, car.ID(), group1Car.ID())
 		var group2Car = carPool.GetJourneys()[group2.ID()].Car()
-		assert.Equal(t, car1.ID(), group2Car.ID())
+		assert.Equal(t, car.ID(), group2Car.ID())
 	})
 
 	t.Run("given a carpool with 2 cars and 1 group fitting a whole car, a new journey should be in the other car", func(t *testing.T) {
@@ -92,15 +118,32 @@ func Test_JourneyUseCase(t *testing.T) {
 		require.NoError(t, err)
 		car2, err := carpool.NewCar(2, 5, 0)
 		require.NoError(t, err)
-		carPool.SetCars([]carpool.Car{car1, car2})
 		group1, err := carpool.NewGroup(1, 5)
 		require.NoError(t, err)
 		group2, err := carpool.NewGroup(2, 2)
 		require.NoError(t, err)
-
-		err = creatingJourneyUseCase.CreateJourney(carPool, group1.ID().Value(), group1.People().Value())
+		journey, err := carpool.NewJourney(group1, car2)
 		require.NoError(t, err)
-		err = creatingJourneyUseCase.CreateJourney(carPool, group2.ID().Value(), group2.People().Value())
+
+		cars := map[carpool.CarID]carpool.Car{
+			car1.ID(): car1,
+			car2.ID(): car2,
+		}
+		carsByAvailableSeats := map[carpool.AvailableSeats]map[carpool.CarID]carpool.Car{
+			car1.AvailableSeats(): {car1.ID(): car1},
+			car2.AvailableSeats(): {car2.ID(): car2},
+		}
+		groups := map[carpool.GroupID]carpool.Group{
+			group1.ID(): group1,
+		}
+		journeys := map[carpool.GroupID]carpool.Journey{
+			group1.ID(): journey,
+		}
+
+		carPool := carpool.NewTestCarPoolWithCarsAndJourneys(cars, carsByAvailableSeats, groups, journeys)
+		ctx := context.WithValue(context.Background(), "carPool", carPool)
+
+		err = creatingJourneyUseCase.CreateJourney(ctx, group2.ID().Value(), group2.People().Value())
 		require.NoError(t, err)
 
 		// There should be 2 groups

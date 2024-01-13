@@ -1,7 +1,6 @@
 package journey
 
 import (
-	"cabify-code-challenge/internal/carpool"
 	"cabify-code-challenge/kit/command"
 	"context"
 	"errors"
@@ -35,14 +34,10 @@ func NewCreatingJourneyCommandHandler(useCase CreateJourneyUseCase) CreatingJour
 
 // Handle implements the command.Handler interface
 func (h CreatingJourneyCommandHandler) Handle(context context.Context, command command.Command) error {
-	carPool, ok := context.Value("carPool").(*carpool.CarPool)
-	if !ok {
-		return errors.New("carPool not found in context")
-	}
 	createJourneyCommand, ok := command.(CreatingJourneyCommand)
 	if !ok {
 		return errors.New("unexpected command")
 	}
-	return h.useCase.CreateJourney(carPool, createJourneyCommand.groupID, createJourneyCommand.people)
+	return h.useCase.CreateJourney(context, createJourneyCommand.groupID, createJourneyCommand.people)
 
 }

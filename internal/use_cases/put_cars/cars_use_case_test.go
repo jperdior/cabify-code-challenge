@@ -14,11 +14,11 @@ func Test_CarsUseCase_PutCars(t *testing.T) {
 
 	eventBusMock := new(eventmocks.Bus)
 	puttingCarsService := NewPuttingCarsUseCase(eventBusMock)
-	carPool := carpool.NewCarPool()
-	ctx := context.WithValue(context.Background(), "carPool", carPool)
 
-	t.Run("given a set of put_cars, it should add them to the car pool", func(t *testing.T) {
+	t.Run("given a set of cars, it should add them to the car pool", func(t *testing.T) {
 
+		carPool := carpool.NewTestCarPoolWithoutCars()
+		ctx := context.WithValue(context.Background(), "carPool", carPool)
 		car1, err := carpool.NewCar(1, 4, 0)
 		require.NoError(t, err)
 		car2, err := carpool.NewCar(2, 4, 0)
@@ -46,7 +46,7 @@ func Test_CarsUseCase_PutCars(t *testing.T) {
 		eventBusMock.AssertExpectations(t)
 	})
 
-	t.Run("given a carpool with put_cars and journeys, it should overwrite the put_cars and remove the journeys", func(t *testing.T) {
+	t.Run("given a carpool with cars and journeys, it should overwrite the put_cars and remove the journeys", func(t *testing.T) {
 
 		car1, err := carpool.NewCar(1, 4, 0)
 		require.NoError(t, err)
@@ -54,11 +54,29 @@ func Test_CarsUseCase_PutCars(t *testing.T) {
 		require.NoError(t, err)
 		car3, err := carpool.NewCar(3, 5, 0)
 		require.NoError(t, err)
-		carPool.SetCars([]carpool.Car{car1, car2, car3})
 		group, err := carpool.NewGroup(1, 3)
 		require.NoError(t, err)
-		err = carPool.Journey(group)
+		journey, err := carpool.NewJourney(group, car1)
 		require.NoError(t, err)
+
+		cars := map[carpool.CarID]carpool.Car{
+			car1.ID(): car1,
+			car2.ID(): car2,
+			car3.ID(): car3,
+		}
+		carsByAvailableSeats := map[carpool.AvailableSeats]map[carpool.CarID]carpool.Car{
+			car1.AvailableSeats(): {car1.ID(): car1, car2.ID(): car2},
+			car3.AvailableSeats(): {car3.ID(): car3},
+		}
+		groups := map[carpool.GroupID]carpool.Group{
+			group.ID(): group,
+		}
+		journeys := map[carpool.GroupID]carpool.Journey{
+			group.ID(): journey,
+		}
+
+		carPool := carpool.NewTestCarPoolWithCarsAndJourneys(cars, carsByAvailableSeats, groups, journeys)
+		ctx := context.WithValue(context.Background(), "carPool", carPool)
 
 		car4, _ := carpool.NewCar(5, 4, 0)
 		car5, _ := carpool.NewCar(6, 5, 0)

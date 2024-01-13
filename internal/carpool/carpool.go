@@ -27,7 +27,7 @@ type CarPool struct {
 // NewCarPool creates a new carpool
 func NewCarPool() *CarPool {
 	return &CarPool{
-		//cars:                   make(map[CarID]Car),
+		cars:                   make(map[CarID]Car),
 		carsByAvailableSeats:   make(map[AvailableSeats]map[CarID]Car),
 		groups:                 make(map[GroupID]Group),
 		journeys:               make(map[GroupID]Journey),

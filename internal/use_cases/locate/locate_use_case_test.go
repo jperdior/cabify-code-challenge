@@ -14,9 +14,9 @@ func TestLocateUseCase_Locate(t *testing.T) {
 	carPool := carpool.NewCarPool()
 
 	t.Run("given a carpool with a group in a journey, it should return the car", func(t *testing.T) {
-		car1, err := carpool.NewCar(1, 4)
-		car2, err := carpool.NewCar(2, 5)
-		car3, err := carpool.NewCar(3, 5)
+		car1, err := carpool.NewCar(1, 4, 0)
+		car2, err := carpool.NewCar(2, 5, 0)
+		car3, err := carpool.NewCar(3, 5, 0)
 		require.NoError(t, err)
 		carPool.SetCars([]carpool.Car{car1, car2, car3})
 
