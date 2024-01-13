@@ -152,6 +152,7 @@ func (carpool *CarPool) registerJourney(group Group, car Car) error {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
 
+	delete(carpool.carsByAvailableSeats[car.AvailableSeats()], car.ID())
 	err := car.SitPeople(group.People().Value())
 	if err != nil {
 		return err
@@ -208,6 +209,9 @@ func (carpool *CarPool) DropOff(groupID GroupID) error {
 func (carpool *CarPool) deregisterJourney(journey Journey) error {
 	car := journey.Car()
 	delete(carpool.carsByAvailableSeats[car.AvailableSeats()], car.ID())
+	if len(carpool.carsByAvailableSeats[car.AvailableSeats()]) == 0 {
+		delete(carpool.carsByAvailableSeats, car.AvailableSeats())
+	}
 	err := car.DropPeople(journey.Group().People().Value())
 	if err != nil {
 		return err

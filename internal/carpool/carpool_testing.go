@@ -28,6 +28,21 @@ func NewTestCarPoolWithCarsAndJourneys(
 	}
 }
 
+func NewTestCarPoolWithWaitingGroups(
+	groups map[GroupID]Group,
+	waitingGroups []Group,
+	waitingGroupsIndexHash map[GroupID]int,
+) *CarPool {
+	return &CarPool{
+		cars:                   make(map[CarID]Car),
+		carsByAvailableSeats:   make(map[AvailableSeats]map[CarID]Car),
+		groups:                 groups,
+		journeys:               make(map[GroupID]Journey),
+		waitingGroups:          waitingGroups,
+		waitingGroupsIndexHash: waitingGroupsIndexHash,
+	}
+}
+
 func NewTestCarPoolWithCarsAndWaitingGroups(
 	cars map[CarID]Car,
 	carsByAvailableSeats map[AvailableSeats]map[CarID]Car,
