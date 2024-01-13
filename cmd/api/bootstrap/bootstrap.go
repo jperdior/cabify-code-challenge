@@ -9,14 +9,17 @@ import (
 	"cabify-code-challenge/internal/use_cases/locate"
 	"cabify-code-challenge/internal/use_cases/put_cars"
 	"cabify-code-challenge/internal/use_cases/retry_journey"
-)
-
-const (
-	host = ""
-	port = 8080
+	"github.com/kelseyhightower/envconfig"
+	"time"
 )
 
 func Run() error {
+
+	var cfg config
+	err := envconfig.Process("pooling", &cfg)
+	if err != nil {
+		return err
+	}
 
 	var (
 		commandBus = inmemory.NewCommandBus()
@@ -46,6 +49,13 @@ func Run() error {
 
 	carPool := carpool.NewCarPool()
 
-	srv := server.New(host, port, commandBus, queryBus, eventBus, carPool)
+	srv := server.New(cfg.Host, cfg.Port, commandBus, queryBus, eventBus, carPool)
 	return srv.Run()
+}
+
+type config struct {
+	// Server configuration
+	Host            string        `default:"localhost"`
+	Port            uint          `default:"8080"`
+	ShutdownTimeout time.Duration `default:"10s"`
 }
