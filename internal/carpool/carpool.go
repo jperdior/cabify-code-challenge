@@ -147,7 +147,7 @@ func (carpool *CarPool) AddWaitingGroup(group Group) {
 	carpool.waitingGroupsIndexHash[group.ID()] = len(carpool.waitingGroups) - 1
 }
 
-// RegisterJourney adds a new journey
+// RegisterJourney adds a new post_journey
 func (carpool *CarPool) registerJourney(group Group, car Car) error {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
@@ -169,7 +169,7 @@ func (carpool *CarPool) registerJourney(group Group, car Car) error {
 
 var ErrGroupNotFound = errors.New("group not found")
 
-// DropOff drops off a group either from the queue or from a journey
+// DropOff drops off a group either from the queue or from a post_journey
 func (carpool *CarPool) DropOff(groupID GroupID) error {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
@@ -179,7 +179,7 @@ func (carpool *CarPool) DropOff(groupID GroupID) error {
 		return ErrGroupNotFound
 	}
 
-	//if the group is on journey
+	//if the group is on post_journey
 	journey, exists := carpool.journeys[groupID]
 	if exists {
 		err := carpool.deregisterJourney(journey)

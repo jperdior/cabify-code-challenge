@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-const CreatingJourneyCommandType command.Type = "journey"
+const CreatingJourneyCommandType command.Type = "post_journey"
 
 type CreatingJourneyCommand struct {
 	groupID int

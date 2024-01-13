@@ -12,7 +12,7 @@ func TestLocateUseCase_Locate(t *testing.T) {
 
 	locateUseCase := NewLocateUseCase()
 
-	t.Run("given a carpool with a group in a journey, it should return the car", func(t *testing.T) {
+	t.Run("given a carpool with a group in a post_journey, it should return the car", func(t *testing.T) {
 		car1, err := carpool.NewCar(1, 4, 0)
 		require.NoError(t, err)
 		car2, err := carpool.NewCar(2, 5, 0)

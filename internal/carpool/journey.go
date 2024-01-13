@@ -5,7 +5,7 @@ type Journey struct {
 	car   Car
 }
 
-// NewJourney creates a new journey
+// NewJourney creates a new post_journey
 func NewJourney(group Group, car Car) (Journey, error) {
 	return Journey{
 		group: group,
@@ -13,12 +13,12 @@ func NewJourney(group Group, car Car) (Journey, error) {
 	}, nil
 }
 
-// Group returns the journey group
+// Group returns the post_journey group
 func (j Journey) Group() Group {
 	return j.group
 }
 
-// Car returns the journey car
+// Car returns the post_journey car
 func (j Journey) Car() Car {
 	return j.car
 }

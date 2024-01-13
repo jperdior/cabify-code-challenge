@@ -1,4 +1,4 @@
-package groups
+package post_journey
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ func TestPostJourneyHandler(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.POST("/journey", PostJourneyHandler(commandBus))
+	r.POST("/post_journey", PostJourneyHandler(commandBus))
 
 	t.Run("given a valid request it returns 200", func(t *testing.T) {
 		journeyRequest := postJourneyRequest{

@@ -16,7 +16,7 @@ func TestDropOffUseCase_DropOff(t *testing.T) {
 	eventBusMock := new(eventmocks.Bus)
 	dropOffUseCase := NewDropOffUseCase(eventBusMock)
 
-	t.Run("given a carPool with a group on a journey it should remove the group from the journey", func(t *testing.T) {
+	t.Run("given a carPool with a group on a post_journey it should remove the group from the post_journey", func(t *testing.T) {
 
 		car1, err := carpool.NewCar(1, 4, 1)
 		require.NoError(t, err)
