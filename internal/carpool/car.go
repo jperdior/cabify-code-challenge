@@ -76,7 +76,7 @@ func NewCar(id int, seats int, availableSeats int) (Car, error) {
 	if err != nil {
 		return Car{}, err
 	}
-	if availableSeats < 0 {
+	if availableSeats == 0 {
 		availableSeats = seats
 	}
 	availableSeatsValueObject, err := NewAvailableSeats(availableSeats)
