@@ -15,27 +15,25 @@ func NewRetryJourneyUseCase() RetryJourneysUseCase {
 
 func (s RetryJourneysUseCase) RetryJourneys(context context.Context, evt event.Event) error {
 	carPool := context.Value("carPool").(*carpool.CarPool)
+
 	switch evt := evt.(type) {
 	case carpool.JourneyDroppedEvent:
-		for _, group := range carPool.GetWaitingGroups() {
-			if evt.AvailableSeats() > group.People().Value() {
-				err := carPool.Journey(group)
-				if err != nil {
-					return err
-				}
-			}
-		}
+		return handleEvent(carPool, evt.AvailableSeats())
 	case carpool.CarPutEvent:
-		for _, group := range carPool.GetWaitingGroups() {
-			if evt.AvailableSeats() > group.People().Value() {
-				err := carPool.Journey(group)
-				if err != nil {
-					return err
-				}
-			}
-		}
+		return handleEvent(carPool, evt.AvailableSeats())
 	default:
 		return errors.New("unexpected event")
+	}
+}
+
+func handleEvent(carPool *carpool.CarPool, availableSeats int) error {
+	for _, group := range carPool.GetWaitingGroups() {
+		if availableSeats > group.People().Value() {
+			err := carPool.Journey(group)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
