@@ -28,7 +28,7 @@ func (s RetryJourneysUseCase) RetryJourneys(context context.Context, evt event.E
 
 func handleEvent(carPool *carpool.CarPool, availableSeats int) error {
 	for _, group := range carPool.GetWaitingGroups() {
-		if availableSeats > group.People().Value() {
+		if availableSeats >= group.People().Value() {
 			err := carPool.Journey(group)
 			if err != nil {
 				return err
