@@ -1,4 +1,4 @@
-package post_journey
+package postjourney
 
 import (
 	"cabify-code-challenge/kit/command"

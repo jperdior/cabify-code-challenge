@@ -1,4 +1,4 @@
-package post_journey
+package postjourney
 
 import (
 	"cabify-code-challenge/internal/carpool"
@@ -29,7 +29,7 @@ func Test_JourneyUseCase(t *testing.T) {
 
 	})
 
-	t.Run("given a carpool with cars available it should have a post_journey and in the only car with enough space", func(t *testing.T) {
+	t.Run("given a carpool with cars available it should have a postjourney and in the only car with enough space", func(t *testing.T) {
 		car1, err := carpool.NewCar(1, 4, 0)
 		require.NoError(t, err)
 		car2, err := carpool.NewCar(2, 4, 0)
@@ -61,9 +61,9 @@ func Test_JourneyUseCase(t *testing.T) {
 		assert.Equal(t, 1, len(carPool.GetGroups()))
 		// There should be 0 groups waiting
 		assert.Equal(t, 0, len(carPool.GetWaitingGroups()))
-		// There should be 1 post_journey
+		// There should be 1 postjourney
 		assert.Equal(t, 1, len(carPool.GetJourneys()))
-		// The post_journey should be in the only car with enough space which is car with id 3
+		// The postjourney should be in the only car with enough space which is car with id 3
 		groupId, _ := carpool.NewGroupID(2)
 		var car = carPool.GetJourneys()[groupId].Car()
 		assert.Equal(t, 3, car.ID().Value())
@@ -112,7 +112,7 @@ func Test_JourneyUseCase(t *testing.T) {
 		assert.Equal(t, car.ID(), group2Car.ID())
 	})
 
-	t.Run("given a carpool with 2 cars and 1 group fitting a whole car, a new post_journey should be in the other car", func(t *testing.T) {
+	t.Run("given a carpool with 2 cars and 1 group fitting a whole car, a new postjourney should be in the other car", func(t *testing.T) {
 
 		car1, err := carpool.NewCar(1, 4, 0)
 		require.NoError(t, err)

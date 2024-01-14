@@ -6,7 +6,7 @@ import (
 	"cabify-code-challenge/internal/platform/server"
 	"cabify-code-challenge/internal/use_cases/dropoff"
 	"cabify-code-challenge/internal/use_cases/locate"
-	"cabify-code-challenge/internal/use_cases/post_journey"
+	"cabify-code-challenge/internal/use_cases/postjourney"
 	"cabify-code-challenge/internal/use_cases/put_cars"
 	"cabify-code-challenge/internal/use_cases/retry_journey"
 	"github.com/kelseyhightower/envconfig"
@@ -31,9 +31,9 @@ func Run() error {
 	puttingCarsCommandHandler := put_cars.NewPutCarsCommandHandler(puttingCarsUseCase)
 	commandBus.Register(put_cars.PutCarsCommandType, puttingCarsCommandHandler)
 
-	journeyUseCase := post_journey.NewCreateJourneyUseCase()
-	journeyCommandHandler := post_journey.NewCreatingJourneyCommandHandler(journeyUseCase)
-	commandBus.Register(post_journey.CreatingJourneyCommandType, journeyCommandHandler)
+	journeyUseCase := postjourney.NewCreateJourneyUseCase()
+	journeyCommandHandler := postjourney.NewCreatingJourneyCommandHandler(journeyUseCase)
+	commandBus.Register(postjourney.CreatingJourneyCommandType, journeyCommandHandler)
 
 	dropOffUseCase := dropoff.NewDropOffUseCase(eventBus)
 	dropOffCommandHandler := dropoff.NewDropOffCommandHandler(dropOffUseCase)
