@@ -4,8 +4,8 @@ import (
 	"cabify-code-challenge/internal/carpool"
 	"cabify-code-challenge/internal/platform/server/handler/cars"
 	"cabify-code-challenge/internal/platform/server/handler/dropoff"
+	"cabify-code-challenge/internal/platform/server/handler/journey"
 	"cabify-code-challenge/internal/platform/server/handler/locate"
-	"cabify-code-challenge/internal/platform/server/handler/post_journey"
 	"cabify-code-challenge/internal/platform/server/handler/status"
 	"cabify-code-challenge/internal/platform/server/middleware/logging"
 	"cabify-code-challenge/kit/command"
@@ -62,7 +62,7 @@ func (s *Server) registerRoutes() {
 
 	s.engine.GET("/status", status.StatusHandler())
 	s.engine.PUT("/cars", cars.PutCarsHandler(s.commandBus))
-	s.engine.POST("/post_journey", post_journey.PostJourneyHandler(s.commandBus))
+	s.engine.POST("/journey", journey.PostJourneyHandler(s.commandBus))
 	s.engine.POST("/dropoff", dropoff.PostDropOffHandler(s.commandBus))
 	s.engine.POST("/locate", locate.PostLocateHandler(s.queryBus))
 }

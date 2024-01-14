@@ -1,8 +1,8 @@
-package post_journey
+package journey
 
 import (
 	"cabify-code-challenge/internal/carpool"
-	"cabify-code-challenge/internal/use_cases/journey"
+	"cabify-code-challenge/internal/use_cases/post_journey"
 	"cabify-code-challenge/kit/command"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -27,7 +27,7 @@ func PostJourneyHandler(commandBus command.Bus) gin.HandlerFunc {
 			return
 		}
 
-		err := commandBus.Dispatch(context, journey.NewCreatingJourneyCommand(request.ID, request.People))
+		err := commandBus.Dispatch(context, post_journey.NewCreatingJourneyCommand(request.ID, request.People))
 		if err != nil {
 			switch {
 			case errors.Is(err, carpool.ErrInvalidGroupID), errors.Is(err, carpool.ErrInvalidPeople):

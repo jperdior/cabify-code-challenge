@@ -5,8 +5,8 @@ import (
 	"cabify-code-challenge/internal/platform/bus/inmemory"
 	"cabify-code-challenge/internal/platform/server"
 	"cabify-code-challenge/internal/use_cases/dropoff"
-	"cabify-code-challenge/internal/use_cases/journey"
 	"cabify-code-challenge/internal/use_cases/locate"
+	"cabify-code-challenge/internal/use_cases/post_journey"
 	"cabify-code-challenge/internal/use_cases/put_cars"
 	"cabify-code-challenge/internal/use_cases/retry_journey"
 	"github.com/kelseyhightower/envconfig"
@@ -31,9 +31,9 @@ func Run() error {
 	puttingCarsCommandHandler := put_cars.NewPutCarsCommandHandler(puttingCarsUseCase)
 	commandBus.Register(put_cars.PutCarsCommandType, puttingCarsCommandHandler)
 
-	journeyUseCase := journey.NewCreateJourneyUseCase()
-	journeyCommandHandler := journey.NewCreatingJourneyCommandHandler(journeyUseCase)
-	commandBus.Register(journey.CreatingJourneyCommandType, journeyCommandHandler)
+	journeyUseCase := post_journey.NewCreateJourneyUseCase()
+	journeyCommandHandler := post_journey.NewCreatingJourneyCommandHandler(journeyUseCase)
+	commandBus.Register(post_journey.CreatingJourneyCommandType, journeyCommandHandler)
 
 	dropOffUseCase := dropoff.NewDropOffUseCase(eventBus)
 	dropOffCommandHandler := dropoff.NewDropOffCommandHandler(dropOffUseCase)
@@ -55,7 +55,7 @@ func Run() error {
 
 type config struct {
 	// Server configuration
-	Host            string        `default:"localhost"`
+	Host            string        `default:""`
 	Port            uint          `default:"8080"`
 	ShutdownTimeout time.Duration `default:"10s"`
 }

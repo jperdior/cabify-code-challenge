@@ -1,6 +1,7 @@
 # Use the official Golang base image
-FROM golang:latest
+FROM golang:alpine AS build
 
+RUN apk add --update git
 # Set the working directory inside the container
 WORKDIR /app
 
@@ -10,8 +11,10 @@ COPY . .
 # Build the Go application
 RUN go build -o main ./cmd/api
 
+FROM scratch
+
+COPY --from=build /app/main /app/main
 # Expose the port that the application will run on
 EXPOSE 8080
-
 # Run the Go application
-CMD ["./main"]
+ENTRYPOINT ["/app/main"]

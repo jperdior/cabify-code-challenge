@@ -1,4 +1,4 @@
-package journey
+package post_journey
 
 import (
 	"cabify-code-challenge/kit/command"
@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-const CreatingJourneyCommandType command.Type = "post_journey"
+const CreatingJourneyCommandType command.Type = "journey"
 
 type CreatingJourneyCommand struct {
 	groupID int
