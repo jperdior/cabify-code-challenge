@@ -22,12 +22,12 @@
 					"raw": "[\n  {\n    \"id\": 1,\n    \"seats\": 4\n  },\n  {\n    \"id\": 2,\n    \"seats\": 6\n  }\n]"
 				},
 				"url": {
-					"raw": "http://localhost:8080/cars",
+					"raw": "http://localhost:9091/cars",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "9091",
 					"path": [
 						"cars"
 					]
@@ -58,12 +58,12 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/dropoff",
+					"raw": "http://localhost:9091/dropoff",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "9091",
 					"path": [
 						"dropoff"
 					]
@@ -87,12 +87,12 @@
 					"raw": "{\n  \"id\": 2,\n  \"people\": 6\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/journey",
+					"raw": "http://localhost:9091/journey",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "9091",
 					"path": [
 						"journey"
 					]
@@ -142,12 +142,12 @@
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8080/locate",
+					"raw": "http://localhost:9091/locate",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "9091",
 					"path": [
 						"locate"
 					]

@@ -9,6 +9,7 @@ import (
 	"cabify-code-challenge/internal/use_cases/postjourney"
 	"cabify-code-challenge/internal/use_cases/put_cars"
 	"cabify-code-challenge/internal/use_cases/retry_journey"
+	"context"
 	"github.com/kelseyhightower/envconfig"
 	"time"
 )
@@ -49,13 +50,13 @@ func Run() error {
 
 	carPool := carpool.NewCarPool()
 
-	srv := server.New(cfg.Host, cfg.Port, commandBus, queryBus, eventBus, carPool)
-	return srv.Run()
+	ctx, srv := server.New(context.Background(), cfg.Host, cfg.Port, cfg.ShutdownTimeout, commandBus, queryBus, eventBus, carPool)
+	return srv.Run(ctx)
 }
 
 type config struct {
 	// Server configuration
 	Host            string        `default:""`
-	Port            uint          `default:"8080"`
+	Port            uint          `default:"9091"`
 	ShutdownTimeout time.Duration `default:"10s"`
 }

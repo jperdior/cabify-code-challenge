@@ -11,14 +11,21 @@ import (
 	"cabify-code-challenge/kit/command"
 	"cabify-code-challenge/kit/event"
 	"cabify-code-challenge/kit/query"
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
 )
 
 type Server struct {
 	httpAddr string
 	engine   *gin.Engine
+
+	shutdownTimeout time.Duration
 
 	//deps
 	commandBus command.Bus
@@ -34,10 +41,12 @@ func CarPoolMiddleware(carPool *carpool.CarPool) gin.HandlerFunc {
 	}
 }
 
-func New(host string, port uint, commandBus command.Bus, queryBus query.Bus, eventBus event.Bus, carPool *carpool.CarPool) Server {
+func New(ctx context.Context, host string, port uint, shutdownTimeout time.Duration, commandBus command.Bus, queryBus query.Bus, eventBus event.Bus, carPool *carpool.CarPool) (context.Context, Server) {
 	srv := Server{
 		httpAddr: fmt.Sprintf("%s:%d", host, port),
 		engine:   gin.Default(),
+
+		shutdownTimeout: shutdownTimeout,
 
 		//deps
 		commandBus: commandBus,
@@ -48,12 +57,28 @@ func New(host string, port uint, commandBus command.Bus, queryBus query.Bus, eve
 
 	srv.registerRoutes()
 	srv.engine.HandleMethodNotAllowed = true
-	return srv
+	return serverContext(ctx), srv
 }
 
-func (s *Server) Run() error {
+func (s *Server) Run(ctx context.Context) error {
 	log.Println("Server running on", s.httpAddr)
-	return s.engine.Run(s.httpAddr)
+
+	srv := &http.Server{
+		Addr:    s.httpAddr,
+		Handler: s.engine,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal("server shut down", err)
+		}
+	}()
+
+	<-ctx.Done()
+	ctxShutDown, cancel := context.WithTimeout(context.Background(), s.shutdownTimeout)
+	defer cancel()
+
+	return srv.Shutdown(ctxShutDown)
 }
 
 func (s *Server) registerRoutes() {
@@ -65,4 +90,16 @@ func (s *Server) registerRoutes() {
 	s.engine.POST("/journey", journey.PostJourneyHandler(s.commandBus))
 	s.engine.POST("/dropoff", dropoff.PostDropOffHandler(s.commandBus))
 	s.engine.POST("/locate", locate.PostLocateHandler(s.queryBus))
+}
+
+func serverContext(ctx context.Context) context.Context {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	ctx, cancel := context.WithCancel(ctx)
+	go func() {
+		<-c
+		cancel()
+	}()
+
+	return ctx
 }

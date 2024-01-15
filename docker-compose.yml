@@ -4,11 +4,14 @@ services:
     pooling:
         build: .
         ports:
-        - "8080:8080"
+        - "9091:9091"
+        environment:
+        - PORT=9091
+
 
     acceptance:
       image: cabify/challenge:latest
       #command: ["tail", "-f", "/dev/null"]
-      command: /harness --address http://pooling:8080 acceptance
+      command: /harness --address http://pooling:9091 acceptance
       depends_on:
         - pooling

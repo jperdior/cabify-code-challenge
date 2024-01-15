@@ -10,15 +10,16 @@ type CarPool struct {
 	//contains all the cars in the carpool
 	cars map[CarID]Car
 	//contains all the cars in the carpool grouped by number of seats
+	//contains all the groups in the carpool
+	groups map[GroupID]Group
+	//contains all the journeys in the carpool indexed by group id
+	journeys map[GroupID]Journey
+
 	carsByAvailableSeats map[AvailableSeats]map[CarID]Car
 	//queue of groups waiting for a car
 	waitingGroups []Group
 	//hash map to find the index of a group in the queue
 	waitingGroupsIndexHash map[GroupID]int
-	//contains all the groups in the carpool
-	groups map[GroupID]Group
-	//contains all the journeys in the carpool indexed by group id
-	journeys map[GroupID]Journey
 
 	mu     sync.Mutex
 	events []event.Event
@@ -121,7 +122,7 @@ func (carpool *CarPool) Journey(group Group) error {
 			return nil
 		}
 	}
-	carpool.AddWaitingGroup(group)
+	carpool.addWaitingGroup(group)
 	return nil
 }
 
@@ -138,8 +139,8 @@ func (carpool *CarPool) getFirstCarByAvailableSeats(availableSeats AvailableSeat
 	return Car{}, false
 }
 
-// AddWaitingGroup adds a new group to the queue of waiting groups
-func (carpool *CarPool) AddWaitingGroup(group Group) {
+// addWaitingGroup adds a new group to the queue of waiting groups
+func (carpool *CarPool) addWaitingGroup(group Group) {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
 
