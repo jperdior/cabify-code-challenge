@@ -9,12 +9,13 @@ import (
 type CarPool struct {
 	//contains all the cars in the carpool
 	cars map[CarID]Car
-	//contains all the cars in the carpool grouped by number of seats
+
 	//contains all the groups in the carpool
 	groups map[GroupID]Group
 	//contains all the journeys in the carpool indexed by group id
 	journeys map[GroupID]Journey
 
+	//contains all the cars in the carpool grouped by number of seats
 	carsByAvailableSeats map[AvailableSeats]map[CarID]Car
 	//queue of groups waiting for a car
 	waitingGroups []Group
@@ -91,22 +92,9 @@ func (carpool *CarPool) relocateCarInCarsByAvailableSeatsMap(car Car) {
 	carpool.carsByAvailableSeats[car.AvailableSeats()][car.ID()] = car
 }
 
-var ErrGroupAlreadyExists = errors.New("group already exists")
-
-// AddGroup adds a new group
-func (carpool *CarPool) AddGroup(group Group) error {
+func (carpool *CarPool) Journey(group Group) error {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
-
-	_, exists := carpool.groups[group.ID()]
-	if exists {
-		return ErrGroupAlreadyExists
-	}
-	carpool.groups[group.ID()] = group
-	return nil
-}
-
-func (carpool *CarPool) Journey(group Group) error {
 
 	for seats := group.People().Value(); seats <= MaxSeats; seats++ {
 		seatsValueObject, err := NewAvailableSeats(seats)
@@ -126,6 +114,21 @@ func (carpool *CarPool) Journey(group Group) error {
 	return nil
 }
 
+var ErrGroupAlreadyExists = errors.New("group already exists")
+
+// AddGroup adds a new group
+func (carpool *CarPool) AddGroup(group Group) error {
+	carpool.mu.Lock()
+	defer carpool.mu.Unlock()
+
+	_, exists := carpool.groups[group.ID()]
+	if exists {
+		return ErrGroupAlreadyExists
+	}
+	carpool.groups[group.ID()] = group
+	return nil
+}
+
 // GetFirstCarByAvailableSeats returns a car with the given number of seats, modifies it in the hash of cars and updates the carsAvailableSeats hash
 func (carpool *CarPool) getFirstCarByAvailableSeats(availableSeats AvailableSeats) (Car, bool) {
 	cars, exists := carpool.carsByAvailableSeats[availableSeats]
@@ -141,8 +144,6 @@ func (carpool *CarPool) getFirstCarByAvailableSeats(availableSeats AvailableSeat
 
 // addWaitingGroup adds a new group to the queue of waiting groups
 func (carpool *CarPool) addWaitingGroup(group Group) {
-	carpool.mu.Lock()
-	defer carpool.mu.Unlock()
 
 	carpool.waitingGroups = append(carpool.waitingGroups, group)
 	carpool.waitingGroupsIndexHash[group.ID()] = len(carpool.waitingGroups) - 1
@@ -150,8 +151,13 @@ func (carpool *CarPool) addWaitingGroup(group Group) {
 
 // RegisterJourney adds a new journey
 func (carpool *CarPool) registerJourney(group Group, car Car) error {
-	carpool.mu.Lock()
-	defer carpool.mu.Unlock()
+
+	// if group is in waitingGroups, remove
+	waitingGroupIndex, exists := carpool.waitingGroupsIndexHash[group.ID()]
+	if exists {
+		carpool.waitingGroups = append(carpool.waitingGroups[:waitingGroupIndex], carpool.waitingGroups[waitingGroupIndex+1:]...)
+		delete(carpool.waitingGroupsIndexHash, group.ID())
+	}
 
 	delete(carpool.carsByAvailableSeats[car.AvailableSeats()], car.ID())
 	err := car.SitPeople(group.People().Value())
