@@ -1,18 +1,5 @@
 package carpool
 
-func NewTestCarPoolWithCars(
-	cars map[CarID]Car,
-	carsByAvailableSeats map[AvailableSeats]map[CarID]Car,
-) *CarPool {
-	return &CarPool{
-		cars:                   cars,
-		carsByAvailableSeats:   carsByAvailableSeats,
-		groups:                 make(map[GroupID]Group),
-		journeys:               make(map[GroupID]Journey),
-		waitingGroupsIndexHash: make(map[GroupID]int),
-	}
-}
-
 func NewTestCarPoolWithCarsAndJourneys(
 	cars map[CarID]Car,
 	carsByAvailableSeats map[AvailableSeats]map[CarID]Car,
@@ -25,6 +12,29 @@ func NewTestCarPoolWithCarsAndJourneys(
 		waitingGroupsIndexHash: make(map[GroupID]int),
 		groups:                 groups,
 		journeys:               journeys,
+	}
+}
+
+func NewTestCarPoolWithoutCars() *CarPool {
+	return &CarPool{
+		cars:                   make(map[CarID]Car),
+		carsByAvailableSeats:   make(map[AvailableSeats]map[CarID]Car),
+		groups:                 make(map[GroupID]Group),
+		journeys:               make(map[GroupID]Journey),
+		waitingGroupsIndexHash: make(map[GroupID]int),
+	}
+}
+
+func NewTestCarPoolWithCars(
+	cars map[CarID]Car,
+	carsByAvailableSeats map[AvailableSeats]map[CarID]Car,
+) *CarPool {
+	return &CarPool{
+		cars:                   cars,
+		carsByAvailableSeats:   carsByAvailableSeats,
+		groups:                 make(map[GroupID]Group),
+		journeys:               make(map[GroupID]Journey),
+		waitingGroupsIndexHash: make(map[GroupID]int),
 	}
 }
 
@@ -57,15 +67,5 @@ func NewTestCarPoolWithCarsAndWaitingGroups(
 		waitingGroupsIndexHash: waitingGroupsIndexHash,
 		groups:                 groups,
 		journeys:               make(map[GroupID]Journey),
-	}
-}
-
-func NewTestCarPoolWithoutCars() *CarPool {
-	return &CarPool{
-		cars:                   make(map[CarID]Car),
-		carsByAvailableSeats:   make(map[AvailableSeats]map[CarID]Car),
-		groups:                 make(map[GroupID]Group),
-		journeys:               make(map[GroupID]Journey),
-		waitingGroupsIndexHash: make(map[GroupID]int),
 	}
 }

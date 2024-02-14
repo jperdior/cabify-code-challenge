@@ -88,7 +88,7 @@ func (s *Server) registerRoutes() {
 	s.engine.GET("/status", status.StatusHandler())
 	s.engine.PUT("/cars", cars.PutCarsHandler(s.commandBus))
 	s.engine.POST("/journey", journey.PostJourneyHandler(s.commandBus))
-	s.engine.POST("/dropoff", dropoff.PostDropOffHandler(s.commandBus))
+	s.engine.POST("/dropoff", dropoff.PostDropOffHandler(s.commandBus, s.queryBus))
 	s.engine.POST("/locate", locate.PostLocateHandler(s.queryBus))
 }
 

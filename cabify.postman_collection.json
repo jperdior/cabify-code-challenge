@@ -106,12 +106,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/status",
+					"raw": "http://localhost:9091/status",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "9091",
 					"path": [
 						"status"
 					]

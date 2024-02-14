@@ -1,20 +1,10 @@
-# Use the official Golang base image
-FROM golang:alpine AS build
+FROM alpine:3.8
 
-RUN apk add --update git
-# Set the working directory inside the container
-WORKDIR /app
+# This Dockerfile is optimized for go binaries, change it as much as necessary
+# for your language of choice.
 
-# Copy the Go application source code to the container
-COPY . .
+EXPOSE 9091
 
-# Build the Go application
-RUN go build -o main ./cmd/api
+COPY bin/car-pooling-challenge /
 
-FROM scratch
-
-COPY --from=build /app/main /app/main
-# Expose the port that the application will run on
-EXPOSE 8080
-# Run the Go application
-ENTRYPOINT ["/app/main"]
+ENTRYPOINT [ "/car-pooling-challenge" ]

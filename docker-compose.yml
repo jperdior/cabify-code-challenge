@@ -2,16 +2,22 @@ version: "3.6"
 
 services:
     pooling:
-        build: .
-        ports:
-        - "9091:9091"
-        environment:
-        - PORT=9091
+      build:
+        context: .
+        dockerfile: Dockerfile.local
+      ports:
+      - "9091:9091"
+      environment:
+      - PORT=9091
+      healthcheck:
+          test: ["CMD", "curl", "-f", "http://localhost:9091/status"]
+          interval: 1s
+          timeout: 3s
+          retries: 10
 
 
     acceptance:
       image: cabify/challenge:latest
-      #command: ["tail", "-f", "/dev/null"]
       command: /harness --address http://pooling:9091 acceptance
       depends_on:
         - pooling

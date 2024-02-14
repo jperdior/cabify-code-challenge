@@ -2,6 +2,7 @@ package dropoff
 
 import (
 	"cabify-code-challenge/kit/command/commandmocks"
+	"cabify-code-challenge/kit/query/querymocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -17,10 +18,12 @@ import (
 func TestPostDropOffHandler(t *testing.T) {
 	commandBus := new(commandmocks.Bus)
 	commandBus.On("Dispatch", mock.Anything, mock.Anything).Return(nil)
+	queryBus := new(querymocks.Bus)
+	queryBus.On("Ask", mock.Anything, mock.Anything).Return(nil, nil)
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.POST("/dropoff", PostDropOffHandler(commandBus))
+	r.POST("/dropoff", PostDropOffHandler(commandBus, queryBus))
 
 	t.Run("given a valid request it returns 200", func(t *testing.T) {
 		dropOffRequest := postDropOffRequest{
