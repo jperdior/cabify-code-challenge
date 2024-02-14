@@ -6,9 +6,9 @@ After being learning Go for the last months and knowing Cabify uses it intensive
 
 ### Improvements
 
-Instead of using context to pass the carpool instance I should bootstrap the application and pass the carpool via dependency injection.
+Instead of using context to pass the carpool instance, in the bootstrapping of the application and pass the carpool via dependency injection.
 
-CQRS it's an overkill in this exercise and it's not needed but I did it just to show how I would implement it in a real project.
+CQRS it's an overkill in this exercise, and it's not needed, but I did it just to show how I would implement it in a real project.
 
 Command and event buses are in memory using go routines so there may be performance problems with a high number of requests. I would use a message broker like RabbitMQ or Kafka in a real project.
 
