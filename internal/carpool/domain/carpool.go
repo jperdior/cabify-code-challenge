@@ -37,7 +37,7 @@ func NewCarPool() *CarPool {
 	}
 }
 
-// GetGroups
+// GetGroups returns the groups
 func (carpool *CarPool) GetGroups() map[GroupID]Group {
 	return carpool.groups
 }
@@ -71,16 +71,15 @@ func (carpool *CarPool) GetCars() map[CarID]Car {
 func (carpool *CarPool) SetCars(cars []Car) {
 	carpool.mu.Lock()
 	defer carpool.mu.Unlock()
-	//reset cars and journeys
 	carpool.cars = make(map[CarID]Car)
 	carpool.carsByAvailableSeats = make(map[AvailableSeats]map[CarID]Car)
+	carpool.groups = make(map[GroupID]Group)
 	carpool.journeys = make(map[GroupID]Journey)
+	carpool.waitingGroupsIndexHash = make(map[GroupID]int)
 
 	for _, car := range cars {
 		carpool.relocateCarInCarsByAvailableSeatsMap(car)
 		carpool.cars[car.ID()] = car
-		//record the event
-		carpool.Record(NewCarPutEvent(car.ID().Value(), car.Seats().Value(), car.AvailableSeats().Value()))
 	}
 }
 
