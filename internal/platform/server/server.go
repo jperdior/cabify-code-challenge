@@ -1,12 +1,8 @@
 package server
 
 import (
-	"cabify-code-challenge/internal/carpool"
-	"cabify-code-challenge/internal/platform/server/handler/cars"
-	"cabify-code-challenge/internal/platform/server/handler/dropoff"
-	"cabify-code-challenge/internal/platform/server/handler/journey"
-	"cabify-code-challenge/internal/platform/server/handler/locate"
-	"cabify-code-challenge/internal/platform/server/handler/status"
+	"cabify-code-challenge/internal/carpool/domain"
+	"cabify-code-challenge/internal/carpool/presentation"
 	"cabify-code-challenge/internal/platform/server/middleware/logging"
 	"cabify-code-challenge/kit/command"
 	"cabify-code-challenge/kit/event"
@@ -31,17 +27,17 @@ type Server struct {
 	commandBus command.Bus
 	queryBus   query.Bus
 	eventBus   event.Bus
-	carPool    *carpool.CarPool
+	carPool    *domain.CarPool
 }
 
-func CarPoolMiddleware(carPool *carpool.CarPool) gin.HandlerFunc {
+func CarPoolMiddleware(carPool *domain.CarPool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("carPool", carPool)
 		c.Next()
 	}
 }
 
-func New(ctx context.Context, host string, port uint, shutdownTimeout time.Duration, commandBus command.Bus, queryBus query.Bus, eventBus event.Bus, carPool *carpool.CarPool) (context.Context, Server) {
+func New(ctx context.Context, host string, port uint, shutdownTimeout time.Duration, commandBus command.Bus, queryBus query.Bus, eventBus event.Bus) (context.Context, Server) {
 	srv := Server{
 		httpAddr: fmt.Sprintf("%s:%d", host, port),
 		engine:   gin.Default(),
@@ -52,7 +48,6 @@ func New(ctx context.Context, host string, port uint, shutdownTimeout time.Durat
 		commandBus: commandBus,
 		queryBus:   queryBus,
 		eventBus:   eventBus,
-		carPool:    carPool,
 	}
 
 	srv.registerRoutes()
@@ -85,11 +80,11 @@ func (s *Server) registerRoutes() {
 
 	s.engine.Use(CarPoolMiddleware(s.carPool), logging.Middleware())
 
-	s.engine.GET("/status", status.StatusHandler())
-	s.engine.PUT("/cars", cars.PutCarsHandler(s.commandBus))
-	s.engine.POST("/journey", journey.PostJourneyHandler(s.commandBus))
-	s.engine.POST("/dropoff", dropoff.PostDropOffHandler(s.commandBus, s.queryBus))
-	s.engine.POST("/locate", locate.PostLocateHandler(s.queryBus))
+	s.engine.GET("/status", presentation.StatusHandler())
+	s.engine.PUT("/cars", presentation.PutCarsHandler(s.commandBus))
+	s.engine.POST("/journey", presentation.PostJourneyHandler(s.commandBus))
+	s.engine.POST("/dropoff", presentation.PostDropOffHandler(s.commandBus, s.queryBus))
+	s.engine.POST("/locate", presentation.PostLocateHandler(s.queryBus))
 }
 
 func serverContext(ctx context.Context) context.Context {

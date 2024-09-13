@@ -1,14 +1,14 @@
 package bootstrap
 
 import (
-	"cabify-code-challenge/internal/carpool"
+	"cabify-code-challenge/internal/carpool/application/dropoff"
+	"cabify-code-challenge/internal/carpool/application/locate"
+	"cabify-code-challenge/internal/carpool/application/post_journey"
+	"cabify-code-challenge/internal/carpool/application/put_cars"
+	"cabify-code-challenge/internal/carpool/application/retry_journey"
+	"cabify-code-challenge/internal/carpool/domain"
 	"cabify-code-challenge/internal/platform/bus/inmemory"
 	"cabify-code-challenge/internal/platform/server"
-	"cabify-code-challenge/internal/use_cases/dropoff"
-	"cabify-code-challenge/internal/use_cases/locate"
-	"cabify-code-challenge/internal/use_cases/post_journey"
-	"cabify-code-challenge/internal/use_cases/put_cars"
-	"cabify-code-challenge/internal/use_cases/retry_journey"
 	"context"
 	"github.com/kelseyhightower/envconfig"
 	"time"
@@ -26,31 +26,30 @@ func Run() error {
 		commandBus = inmemory.NewCommandBus()
 		queryBus   = inmemory.NewQueryBus()
 		eventBus   = inmemory.NewEventBus()
+		carPool    = domain.NewCarPool()
 	)
 
-	puttingCarsUseCase := put_cars.NewPuttingCarsUseCase(eventBus)
-	puttingCarsCommandHandler := put_cars.NewPutCarsCommandHandler(puttingCarsUseCase)
+	putCarsService := put_cars.NewPutCarsService(eventBus, carPool)
+	puttingCarsCommandHandler := put_cars.NewPutCarsCommandHandler(putCarsService)
 	commandBus.Register(put_cars.PutCarsCommandType, puttingCarsCommandHandler)
 
-	journeyUseCase := post_journey.NewCreateJourneyUseCase()
-	journeyCommandHandler := post_journey.NewCreatingJourneyCommandHandler(journeyUseCase)
+	journeyService := post_journey.NewJourneyService(carPool)
+	journeyCommandHandler := post_journey.NewCreatingJourneyCommandHandler(journeyService)
 	commandBus.Register(post_journey.CreatingJourneyCommandType, journeyCommandHandler)
 
-	dropOffUseCase := dropoff.NewDropOffUseCase(eventBus)
-	dropOffCommandHandler := dropoff.NewDropOffCommandHandler(dropOffUseCase)
+	dropOffService := dropoff.NewDropOffService(eventBus, carPool)
+	dropOffCommandHandler := dropoff.NewDropOffCommandHandler(dropOffService)
 	commandBus.Register(dropoff.DropOffCommandType, dropOffCommandHandler)
 
-	locateUseCase := locate.NewLocateUseCase()
-	locateQueryHandler := locate.NewLocateQueryHandler(locateUseCase)
+	locateService := locate.NewLocateService(carPool)
+	locateQueryHandler := locate.NewLocateQueryHandler(locateService)
 	queryBus.Register(locate.LocateQueryType, locateQueryHandler)
 
-	retryJourneyUseCase := retry_journey.NewRetryJourneyUseCase()
-	eventBus.Subscribe(carpool.JourneyDroppedEventType, dropoff.NewRetryJourneysOnJourneyDropped(retryJourneyUseCase))
-	eventBus.Subscribe(carpool.CarPutEventType, put_cars.NewRetryJourneysOnCarPut(retryJourneyUseCase))
+	retryJourneyUseCase := retry_journey.NewRetryJourneyService(carPool)
+	eventBus.Subscribe(domain.JourneyDroppedEventType, retry_journey.NewRetryJourneysOnJourneyDropped(retryJourneyUseCase))
+	eventBus.Subscribe(domain.CarPutEventType, retry_journey.NewRetryJourneysOnCarPut(retryJourneyUseCase))
 
-	carPool := carpool.NewCarPool()
-
-	ctx, srv := server.New(context.Background(), cfg.Host, cfg.Port, cfg.ShutdownTimeout, commandBus, queryBus, eventBus, carPool)
+	ctx, srv := server.New(context.Background(), cfg.Host, cfg.Port, cfg.ShutdownTimeout, commandBus, queryBus, eventBus)
 	return srv.Run(ctx)
 }
 

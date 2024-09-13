@@ -1,11 +1,9 @@
 package command
 
-import "context"
-
 // Bus defines the expected behaviour from a command bus.
 type Bus interface {
 	// Dispatch is the method used to dispatch new commands.
-	Dispatch(context.Context, Command) error
+	Dispatch(Command) error
 	// Register is the method used to register a new command handler.
 	Register(Type, Handler)
 }
@@ -22,5 +20,5 @@ type Command interface {
 
 // Handler defines the expected behaviour from a command handler.
 type Handler interface {
-	Handle(context.Context, Command) error
+	Handle(Command) error
 }

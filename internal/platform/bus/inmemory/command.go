@@ -2,7 +2,6 @@ package inmemory
 
 import (
 	"cabify-code-challenge/kit/command"
-	"context"
 	"fmt"
 	"log"
 )
@@ -20,7 +19,7 @@ func NewCommandBus() *CommandBus {
 }
 
 // Dispatch implements the command.Bus interface.
-func (b *CommandBus) Dispatch(ctx context.Context, cmd command.Command) error {
+func (b *CommandBus) Dispatch(cmd command.Command) error {
 	handler, ok := b.handlers[cmd.Type()]
 	if !ok {
 		return nil
@@ -28,7 +27,7 @@ func (b *CommandBus) Dispatch(ctx context.Context, cmd command.Command) error {
 	fmt.Print("about to dispatch command\n")
 	go func() {
 		fmt.Print("Dispatching command\n")
-		err := handler.Handle(ctx, cmd)
+		err := handler.Handle(cmd)
 		if err != nil {
 			log.Printf("Error while handling %s - %s\n", cmd.Type(), err)
 		}

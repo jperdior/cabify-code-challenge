@@ -1,7 +1,6 @@
 package event
 
 import (
-	"context"
 	"github.com/google/uuid"
 	"time"
 )
@@ -9,14 +8,14 @@ import (
 // Bus defines the expected behaviour from an event bus.
 type Bus interface {
 	// Publish is the method used to publish new events.
-	Publish(context.Context, []Event) error
+	Publish([]Event) error
 }
 
 //go:generate mockery --case=snake --outpkg=eventmocks --output=eventmocks --name=Bus
 
 // Handler defines the expected behaviour from an event handler.
 type Handler interface {
-	Handle(context.Context, Event) error
+	Handle(Event) error
 }
 
 // Type represents a domain event type.

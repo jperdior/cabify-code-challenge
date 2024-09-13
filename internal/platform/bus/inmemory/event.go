@@ -2,7 +2,6 @@ package inmemory
 
 import (
 	"cabify-code-challenge/kit/event"
-	"context"
 	"log"
 )
 
@@ -19,7 +18,7 @@ func NewEventBus() *EventBus {
 }
 
 // Publish implements the event.Bus interface.
-func (b *EventBus) Publish(ctx context.Context, events []event.Event) error {
+func (b *EventBus) Publish(events []event.Event) error {
 	for _, evt := range events {
 		handlers, ok := b.handlers[evt.Type()]
 		if !ok {
@@ -29,7 +28,7 @@ func (b *EventBus) Publish(ctx context.Context, events []event.Event) error {
 		for _, handler := range handlers {
 			handler := handler
 			go func() {
-				err := handler.Handle(ctx, evt)
+				err := handler.Handle(evt)
 				if err != nil {
 					log.Printf("Error while handling %s - %s\n", evt.Type(), err)
 				}
