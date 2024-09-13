@@ -46,7 +46,7 @@ func TestDropOffUseCase_DropOff(t *testing.T) {
 
 		service := NewDropOffService(eventBusMock, carPool)
 
-		eventBusMock.On("Publish", mock.Anything, mock.AnythingOfType("[]event.Event")).Return(nil)
+		eventBusMock.On("Publish", mock.AnythingOfType("[]event.Event")).Return(nil)
 
 		err = service.Execute(1)
 		require.NoError(t, err)
@@ -79,7 +79,7 @@ func TestDropOffUseCase_DropOff(t *testing.T) {
 
 		service := NewDropOffService(eventBusMock, carPool)
 
-		eventBusMock.On("Publish", mock.Anything, mock.AnythingOfType("[]event.Event")).Return(nil)
+		eventBusMock.On("Publish", mock.AnythingOfType("[]event.Event")).Return(nil)
 
 		err = service.Execute(1)
 		require.NoError(t, err)

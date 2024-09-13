@@ -25,7 +25,7 @@ func Test_CarsUseCase_PutCars(t *testing.T) {
 
 		service := NewPutCarsService(eventBusMock, carPool)
 
-		eventBusMock.On("Publish", mock.Anything, mock.AnythingOfType("[]event.Event")).Return(nil)
+		eventBusMock.On("Publish", mock.AnythingOfType("[]event.Event")).Return(nil)
 
 		err = service.Execute([]domain.Car{car1, car2, car3})
 
@@ -81,7 +81,7 @@ func Test_CarsUseCase_PutCars(t *testing.T) {
 
 		service := NewPutCarsService(eventBusMock, carPool)
 
-		eventBusMock.On("Publish", mock.Anything, mock.AnythingOfType("[]event.Event")).Return(nil)
+		eventBusMock.On("Publish", mock.AnythingOfType("[]event.Event")).Return(nil)
 
 		err = service.Execute([]domain.Car{car4, car5})
 		require.NoError(t, err)

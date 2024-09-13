@@ -1,16 +1,18 @@
 # Car Pooling Service Challenge
 
+![test workflow](https://github.com/jperdior/user-service/actions/workflows/test.yml/badge.svg)
+
 ## Candidate commentary
 
 After being learning Go for the last months and knowing Cabify uses it intensively, I decided to put in practice what I've learned in this challenge and implemented the service in Go. I used gin framework for the server and the request handling.
 
+Update: I removed the carPool from the context and passed it via dependency injection in the bootstrapping of the application.
+
 ### Improvements
 
-Instead of using context to pass the carpool instance, in the bootstrapping of the application and pass the carpool via dependency injection.
+CQRS it's an overkill in this exercise, and it's not needed, but I did it just to show my practical knowledge of the pattern.
 
-CQRS it's an overkill in this exercise, and it's not needed, but I did it just to show how I would implement it in a real project.
-
-Command and event buses are in memory using go routines so there may be performance problems with a high number of requests. I would use a message broker like RabbitMQ or Kafka in a real project.
+Command and event buses are implemented in memory using go routines so there may be performance problems with a high number of requests. In a real world(TM) project I would use a message broker like RabbitMQ or Kafka.
 
 ### Requirements and how to run
 
@@ -52,13 +54,12 @@ I implemented the solution using a DDD approach, with CQRS to communicate the se
 - In cmd/api there's the main.go file, and the bootstrapping of the server.
 - In kit I created basic interfaces for the command, query and event bus which are common to all the services.
 - In internal/platform there's the infrastructure implementations, the request handlers and the bus in memory implementations using go routines.
-- In internal/use_cases there's the application services.
-- In internal/carpool there's the domain elements needed for the carpooling service.
+- In internal/carpool there's the domain and application services, and the carpool aggregate.
 
 ### Decisions
 
 - To avoid the need of a message broker, all buses work in memory with go routines, except the query bus.
-- To avoid the need of a database, I create an instance of carpool in the bootstrapping of the server, and I add it to the context so the same carpool instance is used in all the handlers.
+- To avoid the need of a database, I create an instance of carpool in the bootstrapping of the server and I pass it via dependency injection to the application services/use cases.
 - For the retry journey use case I am aware that there's space for improvement in performance, but as I wanted to respect the arrival order of the waiting groups it's just a loop.
 - On the other side, for the locate and assign journey I created mappings so cars by seats available and groups can be retrieved with a complexity of O(1). This should allow the service to work reasonably well with at least 10^4 / 10^5 cars / waiting groups.
 
