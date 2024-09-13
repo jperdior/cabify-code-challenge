@@ -47,7 +47,6 @@ func Run() error {
 
 	retryJourneyUseCase := retry_journey.NewRetryJourneyService(carPool)
 	eventBus.Subscribe(domain.JourneyDroppedEventType, retry_journey.NewRetryJourneysOnJourneyDropped(retryJourneyUseCase))
-	eventBus.Subscribe(domain.CarPutEventType, retry_journey.NewRetryJourneysOnCarPut(retryJourneyUseCase))
 
 	ctx, srv := server.New(context.Background(), cfg.Host, cfg.Port, cfg.ShutdownTimeout, commandBus, queryBus, eventBus)
 	return srv.Run(ctx)

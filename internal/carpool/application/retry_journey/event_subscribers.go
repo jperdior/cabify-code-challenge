@@ -6,22 +6,6 @@ import (
 	"errors"
 )
 
-type RetryJourneysOnCarPut struct {
-	service RetryJourneyService
-}
-
-func NewRetryJourneysOnCarPut(service RetryJourneyService) RetryJourneysOnCarPut {
-	return RetryJourneysOnCarPut{service: service}
-}
-
-func (e RetryJourneysOnCarPut) Handle(evt event.Event) error {
-	catPutEvent, ok := evt.(domain.CarPutEvent)
-	if !ok {
-		return errors.New("unexpected event")
-	}
-	return e.service.Execute(catPutEvent.AvailableSeats())
-}
-
 type RetryJourneysOnJourneyDropped struct {
 	service RetryJourneyService
 }
