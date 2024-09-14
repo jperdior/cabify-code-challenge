@@ -67,6 +67,21 @@ func (carpool *CarPool) GetCars() map[CarID]Car {
 	return carpool.cars
 }
 
+var ErrGroupAlreadyExists = errors.New("group already exists")
+
+// AddGroup adds a new group
+func (carpool *CarPool) AddGroup(group Group) error {
+	carpool.mu.Lock()
+	defer carpool.mu.Unlock()
+
+	_, exists := carpool.groups[group.ID()]
+	if exists {
+		return ErrGroupAlreadyExists
+	}
+	carpool.groups[group.ID()] = group
+	return nil
+}
+
 // SetCars sets the carsByAvailableSeats and resets journeys
 func (carpool *CarPool) SetCars(cars []Car) {
 	carpool.mu.Lock()
@@ -76,16 +91,26 @@ func (carpool *CarPool) SetCars(cars []Car) {
 	carpool.groups = make(map[GroupID]Group)
 	carpool.journeys = make(map[GroupID]Journey)
 	carpool.waitingGroupsIndexHash = make(map[GroupID]int)
-
 	for _, car := range cars {
-		carpool.relocateCarInCarsByAvailableSeatsMap(car)
 		carpool.cars[car.ID()] = car
+	}
+	carpool.buildCarsByAvailableSeats()
+}
+
+// buildCarsByAvailableSeats builds the carsByAvailableSeats map
+func (carpool *CarPool) buildCarsByAvailableSeats() {
+	carpool.carsByAvailableSeats = make(map[AvailableSeats]map[CarID]Car)
+	for _, car := range carpool.cars {
+		if _, exists := carpool.carsByAvailableSeats[car.AvailableSeats()]; !exists {
+			carpool.carsByAvailableSeats[car.AvailableSeats()] = make(map[CarID]Car)
+		}
+		carpool.carsByAvailableSeats[car.AvailableSeats()][car.ID()] = car
 	}
 }
 
-func (carpool *CarPool) relocateCarInCarsByAvailableSeatsMap(car Car) {
-	_, exists := carpool.carsByAvailableSeats[car.AvailableSeats()]
-	if !exists {
+// relocateCarsByAvailableSeats relocates the carsByAvailableSeats map
+func (carpool *CarPool) relocateCarsByAvailableSeats(car Car) {
+	if _, exists := carpool.carsByAvailableSeats[car.AvailableSeats()]; !exists {
 		carpool.carsByAvailableSeats[car.AvailableSeats()] = make(map[CarID]Car)
 	}
 	carpool.carsByAvailableSeats[car.AvailableSeats()][car.ID()] = car
@@ -110,21 +135,6 @@ func (carpool *CarPool) Journey(group Group) error {
 		}
 	}
 	carpool.addWaitingGroup(group)
-	return nil
-}
-
-var ErrGroupAlreadyExists = errors.New("group already exists")
-
-// AddGroup adds a new group
-func (carpool *CarPool) AddGroup(group Group) error {
-	carpool.mu.Lock()
-	defer carpool.mu.Unlock()
-
-	_, exists := carpool.groups[group.ID()]
-	if exists {
-		return ErrGroupAlreadyExists
-	}
-	carpool.groups[group.ID()] = group
 	return nil
 }
 
@@ -168,7 +178,7 @@ func (carpool *CarPool) registerJourney(group Group, car Car) error {
 		return err
 	}
 	carpool.journeys[group.ID()] = journey
-	carpool.relocateCarInCarsByAvailableSeatsMap(car)
+	carpool.relocateCarsByAvailableSeats(car)
 
 	return nil
 }
@@ -215,14 +225,11 @@ func (carpool *CarPool) DropOff(groupID GroupID) error {
 func (carpool *CarPool) deregisterJourney(journey Journey) error {
 	car := journey.Car()
 	delete(carpool.carsByAvailableSeats[car.AvailableSeats()], car.ID())
-	if len(carpool.carsByAvailableSeats[car.AvailableSeats()]) == 0 {
-		delete(carpool.carsByAvailableSeats, car.AvailableSeats())
-	}
 	err := car.DropPeople(journey.Group().People().Value())
 	if err != nil {
 		return err
 	}
-	carpool.relocateCarInCarsByAvailableSeatsMap(car)
+	carpool.relocateCarsByAvailableSeats(car)
 	carpool.cars[car.ID()] = car
 	return nil
 }
