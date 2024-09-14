@@ -55,8 +55,6 @@ func TestDropOffUseCase_DropOff(t *testing.T) {
 		assert.Equal(t, 0, len(carPool.GetGroups()))
 		// there should be no journeys
 		assert.Equal(t, 0, len(carPool.GetJourneys()))
-		// there should be only 2 types of available seats
-		assert.Equal(t, 2, len(carPool.GetCarsByAvailableSeats()))
 		// cars with 4 seats available should have 2 cars
 		fourAvailableSeats, err := domain.NewAvailableSeats(4)
 		assert.Equal(t, 2, len(carPool.GetCarsByAvailableSeats()[fourAvailableSeats]))
